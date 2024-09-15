@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       home: _hasPermissions
-          ? const MainScreen()
+          ? const LogInScreen()
           : const Scaffold(
               body: Center(
                 child: Text("Grant location permissions to use this app!"),

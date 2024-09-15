@@ -1,236 +1,376 @@
+import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kavach/components/main_component.dart';
-
-Container make_contact_widget(String name, int phone_number) {
-  return Container(
-    decoration: BoxDecoration(
-      border: Border(
-        top: BorderSide(color: Colors.black, width: 2),
-        right: BorderSide(color: Colors.black, width: 2),
-        bottom: BorderSide(color: Colors.black, width: 2),
-        left: BorderSide(color: Colors.black, width: 2),
-      ),
-      borderRadius: BorderRadius.circular(16.0),
-    ),
-    child: Padding(
-      padding: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
-      child: Row(
-        children: [
-          Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-          Spacer(),
-          Text("$phone_number"),
-        ],
-      ),
-    ),
-  );
-}
-
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kavach/secrets.dart' as s;
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProfileScreen> createState() => _ProfileState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _numberController = TextEditingController();
+  final List<Map<String, String>> _emergencyContacts = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Widget> _contact_widgets = [];
+  bool _isLoading = false;
+  String _phoneNumber = '';
+  final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
+  final _storage = const FlutterSecureStorage();
+
+  Future<String?> getPhoneNumber() async {
+    final user = await _storage.read(key: 'user_id');
+    print(user);
+    return user;
+  }
+
+  Future<String?> getUserName() async {
+    _phoneNumber = (await getPhoneNumber())!;
+
+    final response = await supabaseClient
+        .from('users')
+        .select()
+        .eq('phone_number', _phoneNumber as Object);
+
+    if (response.length == 0) {
+      return null;
+    }
+
+    return response[0]['username'] as String;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    const blue = const Color(0xFF7196F4);
-    const dark_blue = const Color(0xFF0B308E);
-    const green = const Color(0xFF95F6A7);
-    const hero_icon = const Icon(
-      Icons.person,
-      color: blue,
-      size: 192.0,
-    );
-    const vishnu_text = const Text(
-      "Vishnu",
-      textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 64, color: blue, fontWeight: FontWeight.bold),
-    );
-
-    const subtitle_text = const Text(
-      "Share your location with your loved ones, ensuring a safe journey",
-      textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 16),
-    );
-
-    const border_styling = const OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-      borderSide: BorderSide(color: Colors.black, width: 2.0),
-    );
-
-    const from_text_input = const TextField(
-      decoration: InputDecoration(
-        labelText: "From",
-        suffixIcon: Icon(Icons.search),
-        enabledBorder: border_styling,
-        focusedBorder: border_styling,
-      ),
-    );
-
-    const to_text_input = const TextField(
-      decoration: InputDecoration(
-          labelText: "To",
-          suffixIcon: Icon(Icons.search),
-          enabledBorder: border_styling,
-          focusedBorder: border_styling),
-    );
-
-    const space = const SizedBox(
-      width: 12,
-      height: 12,
-    );
-
-    const half_space = const SizedBox(
-      width: 8,
-      height: 8,
-    );
-
-    const divider = const Divider(thickness: 2, color: Colors.black);
-
-    Column contact_holder = Column(children: _contact_widgets);
-
-    OutlinedButton submit_button = OutlinedButton(
-      child: const Row(children: <Widget>[
-        const Text(
-          'Share Location',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        Spacer(),
-        const Icon(
-          Icons.arrow_forward_rounded,
-          color: Colors.white,
-          size: 28,
-        )
-      ]),
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        backgroundColor: blue,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      ),
-    );
-
-    OutlinedButton share_button = OutlinedButton(
-      child: Icon(Icons.share, size: 28, color: Colors.black),
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        backgroundColor: green,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        side: BorderSide(color: Colors.black),
-      ),
-    );
-
-    Container submit_button_container = Container(
-        height: 64.0,
-        width: 256.0,
-        decoration: BoxDecoration(
-            border: const Border(
-              left: const BorderSide(color: dark_blue, width: 2.0),
-              top: const BorderSide(color: dark_blue, width: 2.0),
-              right: const BorderSide(color: dark_blue, width: 6.0),
-              bottom: const BorderSide(color: dark_blue, width: 6.0),
-            ),
-            borderRadius: BorderRadius.circular(16.0)),
-        child: submit_button);
-
-    Container share_button_container = Container(
-        height: 64.0,
-        decoration: BoxDecoration(
-            border: const Border(
-              left: const BorderSide(color: Colors.black, width: 2.0),
-              top: const BorderSide(color: Colors.black, width: 2.0),
-              right: const BorderSide(color: Colors.black, width: 6.0),
-              bottom: const BorderSide(color: Colors.black, width: 6.0),
-            ),
-            borderRadius: BorderRadius.circular(16.0)),
-        child: share_button);
-
-    Row bottom_buttons = Row(
-      children: [submit_button_container, Spacer(), share_button_container],
-    );
-
-    SizedBox add_contact_button = SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-          onPressed: _update_contact_widgets,
-          style: OutlinedButton.styleFrom(
-              backgroundColor: green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0)),
-              side: BorderSide(width: 2.0, color: Colors.black)),
-          child: const Row(children: <Widget>[
-            const Text('Add contacts',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                )),
-            const Spacer(),
-            const Icon(Icons.add)
-          ])),
-    );
-
-    if (_contact_widgets.length < 1) _contact_widgets.add(add_contact_button);
-    Container all_contacts = Container(
-      height: 128,
-      child: ListView.builder(
-        itemCount: _contact_widgets.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _contact_widgets[index];
-        },
-      ),
-    );
-
     return Scaffold(
       key: _scaffoldKey,
       drawer: myDrawer,
       appBar: getAppBar(_scaffoldKey),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            hero_icon,
-            vishnu_text,
-            subtitle_text,
-            space,
-            from_text_input,
-            space,
-            to_text_input,
-            divider,
-            all_contacts,
-            divider,
-            bottom_buttons
-          ],
+      body: Stack(children: [
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage("https://placehold.co/200/png"),
+                ),
+                const SizedBox(height: 10),
+                FutureBuilder<String?>(
+                  future: getUserName(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                        snapshot.data!,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+                FutureBuilder<String?>(
+                  future: getPhoneNumber(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                        '+91 ${snapshot.data}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+                const SizedBox(height: 30),
+
+                // Emergency Contact Section
+                const Text(
+                  'Emergency Contacts',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: const Border(
+                      top: BorderSide(
+                        color: Colors.black,
+                        width: 0.1,
+                      ),
+                      left: BorderSide(
+                        color: Colors.black,
+                        width: 0.1,
+                      ),
+                      bottom: BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
+                      right: BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Names',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: const Border(
+                      top: BorderSide(
+                        color: Colors.black,
+                        width: 0.1,
+                      ),
+                      left: BorderSide(
+                        color: Colors.black,
+                        width: 0.1,
+                      ),
+                      bottom: BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
+                      right: BorderSide(
+                        color: Colors.black,
+                        width: 4,
+                      ),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _numberController,
+                    decoration: InputDecoration(
+                      labelText: 'Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Add Emergency Contact Button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: const Border(
+                      top: BorderSide(
+                        color: Color(0xFF900927),
+                        width: 1.0,
+                      ),
+                      left: BorderSide(
+                        color: Color(0xFF900927),
+                        width: 1.0,
+                      ),
+                      bottom: BorderSide(
+                        color: Color(0xFF900927),
+                        width: 4,
+                      ),
+                      right: BorderSide(
+                        color: Color(0xFF900927),
+                        width: 4,
+                      ),
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _addEmergencyContact,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        backgroundColor: const Color(0xFFFF6666),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Add emergency contact',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          SizedBox(width: 10),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Divider(
+                  thickness: 2,
+                  color: Color(0xFF555555),
+                ),
+                const SizedBox(height: 20),
+
+                // Display List of Emergency Contacts
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _emergencyContacts.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.0),
+                        border: const Border(
+                          top: BorderSide(
+                            color: Colors.black,
+                            width: 0.1,
+                          ),
+                          left: BorderSide(
+                            color: Colors.black,
+                            width: 0.1,
+                          ),
+                          bottom: BorderSide(
+                            color: Colors.black,
+                            width: 4,
+                          ),
+                          right: BorderSide(
+                            color: Colors.black,
+                            width: 4,
+                          ),
+                        ),
+                      ),
+                      child: ListTile(
+                        title: Text(_emergencyContacts[index]['name']!),
+                        subtitle: Text(_emergencyContacts[index]['number']!),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _removeEmergencyContact(index),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        if (_isLoading)
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child:
+                    LoadingAnimationWidget.beat(color: Colors.white, size: 50),
+              ),
+            ),
+          ),
+      ]),
     );
   }
 
-void _update_contact_widgets() {
-    setState( () { 
-      const half_space = const SizedBox(
-      width: 8,
-      height: 8,
-    );
-      _contact_widgets.addAll(
-        <Widget>[
-          make_contact_widget("Pranjal Rastogi", 9910708969),
-          half_space
-        ],
-      );
+  void _addEmergencyContact() {
+    if (_nameController.text.isNotEmpty &&
+        _numberController.text.isNotEmpty &&
+        _numberController.text.length == 10) {
+      setState(() {
+        _emergencyContacts.add({
+          'name': _nameController.text,
+          'number': _numberController.text,
+        });
+      });
+      updateEmergencyContactsDB();
+      _nameController.clear();
+      _numberController.clear();
+    }
+  }
+
+  void _removeEmergencyContact(int index) {
+    setState(() {
+      _emergencyContacts.removeAt(index);
     });
-}
+  }
+
+  Future<void> updateEmergencyContactsDB() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await supabaseClient.from('emergencycontacts').insert({
+        'emergency_contacts': jsonEncode(_emergencyContacts),
+      });
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: Text('Error: ${error.toString()}'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }

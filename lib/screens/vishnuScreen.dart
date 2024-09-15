@@ -1,29 +1,11 @@
+import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:kavach/components/main_component.dart';
-
-Container make_contact_widget(String name, int phone_number) {
-  return Container(
-    decoration: BoxDecoration(
-      border: Border(
-        top: BorderSide(color: Colors.black, width: 2),
-        right: BorderSide(color: Colors.black, width: 2),
-        bottom: BorderSide(color: Colors.black, width: 2),
-        left: BorderSide(color: Colors.black, width: 2),
-      ),
-      borderRadius: BorderRadius.circular(16.0),
-    ),
-    child: Padding(
-      padding: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
-      child: Row(
-        children: [
-          Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-          Spacer(),
-          Text("$phone_number"),
-        ],
-      ),
-    ),
-  );
-}
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kavach/secrets.dart' as s;
 
 class VishnuScreen extends StatefulWidget {
   const VishnuScreen({super.key});
@@ -35,6 +17,34 @@ class VishnuScreen extends StatefulWidget {
 class _VishnuState extends State<VishnuScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Widget> _contact_widgets = [];
+  bool _isLoading = false;
+  String _phoneNumber = '';
+  final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
+  final _storage = const FlutterSecureStorage();
+  final TextEditingController _fromController = TextEditingController();
+  final TextEditingController _toController = TextEditingController();
+  final TextEditingController _contactNameController = TextEditingController();
+
+  Future<String?> getPhoneNumber() async {
+    final user = await _storage.read(key: 'user_id');
+    print(user);
+    return user;
+  }
+
+  Future<String?> getUserName() async {
+    _phoneNumber = (await getPhoneNumber())!;
+
+    final response = await supabaseClient
+        .from('users')
+        .select()
+        .eq('phone_number', _phoneNumber as Object);
+
+    if (response.length == 0) {
+      return null;
+    }
+
+    return response[0]['username'] as String;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +73,9 @@ class _VishnuState extends State<VishnuScreen> {
       borderSide: BorderSide(color: Colors.black, width: 2.0),
     );
 
-    const from_text_input = const TextField(
-      decoration: InputDecoration(
+    var from_text_input = TextField(
+      controller: _fromController,
+      decoration: const InputDecoration(
         labelText: "From",
         suffixIcon: Icon(Icons.search),
         enabledBorder: border_styling,
@@ -72,8 +83,9 @@ class _VishnuState extends State<VishnuScreen> {
       ),
     );
 
-    const to_text_input = const TextField(
-      decoration: InputDecoration(
+    var to_text_input = TextField(
+      controller: _toController,
+      decoration: const InputDecoration(
           labelText: "To",
           suffixIcon: Icon(Icons.search),
           enabledBorder: border_styling,
@@ -92,9 +104,92 @@ class _VishnuState extends State<VishnuScreen> {
 
     const divider = const Divider(thickness: 2, color: Colors.black);
 
+    void editContact() {
+      showModalBottomSheet<void>(
+        // context and builder are
+        // required properties in this widget
+        context: context,
+        builder: (BuildContext context) {
+          const border_styling = const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            borderSide: BorderSide(color: Colors.black, width: 2.0),
+          );
+
+          const report_location = const TextField(
+            decoration: InputDecoration(
+              labelText: "Report location",
+              enabledBorder: border_styling,
+              focusedBorder: border_styling,
+            ),
+          );
+          const additional_details = const TextField(
+            decoration: InputDecoration(
+              labelText: "Additional Details",
+              enabledBorder: border_styling,
+              focusedBorder: border_styling,
+            ),
+          );
+
+          return const SizedBox(
+              height: 480,
+              child: SizedBox(
+                  height: 256,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                    child: Center(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('Editing Report',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 32)),
+                        space,
+                        report_location,
+                        space,
+                        additional_details,
+                      ],
+                    )),
+                  )));
+        },
+      );
+    }
+
+    GestureDetector make_contact_widget(String name, String number) {
+      return GestureDetector(
+          onTap: editContact,
+          child: Container(
+            decoration: BoxDecoration(
+              border: const Border(
+                top: BorderSide(color: Colors.black, width: 2),
+                right: BorderSide(color: Colors.black, width: 2),
+                bottom: BorderSide(color: Colors.black, width: 2),
+                left: BorderSide(color: Colors.black, width: 2),
+              ),
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
+              child: Row(
+                children: [
+                  Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
+                  Spacer(),
+                  Text(number),
+                ],
+              ),
+            ),
+          ));
+    }
+
     Column contact_holder = Column(children: _contact_widgets);
 
     OutlinedButton submit_button = OutlinedButton(
+      onPressed: () {},
+      style: OutlinedButton.styleFrom(
+        backgroundColor: blue,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      ),
       child: const Row(children: <Widget>[
         const Text(
           'Share Location',
@@ -111,12 +206,6 @@ class _VishnuState extends State<VishnuScreen> {
           size: 28,
         )
       ]),
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        backgroundColor: blue,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      ),
     );
 
     OutlinedButton share_button = OutlinedButton(
@@ -158,6 +247,21 @@ class _VishnuState extends State<VishnuScreen> {
     Row bottom_buttons = Row(
       children: [submit_button_container, Spacer(), share_button_container],
     );
+
+    void _update_contact_widgets() {
+      setState(() {
+        const half_space = const SizedBox(
+          width: 8,
+          height: 8,
+        );
+        _contact_widgets.addAll(
+          <Widget>[
+            make_contact_widget("Pranjal Rastogi", "9910708969"),
+            half_space
+          ],
+        );
+      });
+    }
 
     SizedBox add_contact_button = SizedBox(
       width: double.infinity,
@@ -215,20 +319,5 @@ class _VishnuState extends State<VishnuScreen> {
         ),
       ),
     );
-  }
-
-  void _update_contact_widgets() {
-    setState(() {
-      const half_space = const SizedBox(
-        width: 8,
-        height: 8,
-      );
-      _contact_widgets.addAll(
-        <Widget>[
-          make_contact_widget("Pranjal Rastogi", 9910708969),
-          half_space
-        ],
-      );
-    });
   }
 }
