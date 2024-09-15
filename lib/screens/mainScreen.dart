@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/components/my_map.dart';
 
@@ -113,6 +114,99 @@ class _MainScreenState extends State<MainScreen> {
           children: <Widget>[
             const Center(
               child: MyMap(),
+            ),
+            Container(
+              height: 100,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white,
+                    Color(0x00FFFFFF),
+                  ],
+                ),
+              ),
+            ),
+            const Text("You only live once. Save yourself."),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 4.0, 90.0),
+              child: ExpandableFab(
+                // pos: ExpandableFabPos.right,
+                type: ExpandableFabType.up,
+                distance: 50,
+                openButtonBuilder: FloatingActionButtonBuilder(
+                  size: 100,
+                  builder: (BuildContext context, void Function()? onPressed,
+                      Animation<double> progress) {
+                    return Container(
+                      width: 130,
+                      decoration: const BoxDecoration(
+                        color: Color(
+                          0xFF242829,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(
+                              Icons.report,
+                              color: Colors.white,
+                              size: 40.0,
+                            ),
+                            Text(
+                              "Report",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                closeButtonBuilder: FloatingActionButtonBuilder(
+                  size: 100,
+                  builder: (BuildContext context, void Function()? onPressed,
+                      Animation<double> progress) {
+                    return Container(
+                      width: 64,
+                      decoration: const BoxDecoration(
+                        color: Color(
+                          0xFF242829,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Icon(
+                          Icons.close,
+                          color: Color(0xFFFF6666),
+                          size: 40.0,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                children: [
+                  FloatingActionButton.small(
+                    heroTag: null,
+                    child: const Icon(Icons.edit),
+                    onPressed: () {},
+                  ),
+                  FloatingActionButton.small(
+                    heroTag: null,
+                    child: const Icon(Icons.search),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
             ),
             DraggableScrollableSheet(
               controller: sheetController,
