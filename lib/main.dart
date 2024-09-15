@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/screens/mainScreen.dart';
+import 'package:kavach/screens/vishnuScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,7 +17,7 @@ Future<void> main() async {
     anonKey: s.supabaseAnonKey,
   );
 
-  runApp(const MyApp());
+  runApp(const VishnuScreen());
 }
 
 class MyApp extends StatefulWidget {
