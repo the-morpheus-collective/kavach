@@ -137,7 +137,7 @@ class _MyMapState extends State<MyMap> {
             mapController: _controller,
             options: MapOptions(
                 initialCenter: initialLocation,
-                initialZoom: 15.0,
+                initialZoom: 14.0,
                 maxZoom: 22,
                 backgroundColor: Theme.of(context).canvasColor),
             children: [
