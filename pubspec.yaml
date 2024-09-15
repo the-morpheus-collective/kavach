@@ -14,6 +14,7 @@ dependencies:
   latlong2: ^0.9.1
   vector_map_tiles: ^8.0.0
   vector_tile_renderer: ^5.2.0
+  supabase_flutter: ^2.6.0
   flutter_map_heatmap:
     path: ./fluttermap_heatmap
 

@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+import 'package:kavach/secrets.dart' as s;
+
+Future<void> main() async {
+  await Supabase.initialize(
+    url: s.supabaseUrl,
+    anonKey: s.supabaseAnonKey,
+  );
+
   runApp(const MainApp());
 }
 
