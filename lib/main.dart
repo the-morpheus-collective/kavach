@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,8 +19,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MainScreen(),
+    var baseTheme = ThemeData(brightness: Brightness.light);
+
+    return MaterialApp(
+      theme: baseTheme.copyWith(
+          textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme)),
+      debugShowCheckedModeBanner: false,
+      home: const MainScreen(),
     );
   }
 }
