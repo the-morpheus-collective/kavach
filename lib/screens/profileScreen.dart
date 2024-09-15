@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .eq('phone_number', _phoneNumber as Object);
 
     if (response.length == 0) {
-      return null;
+      return "Placeholder User";
     }
 
     return response[0]['username'] as String;

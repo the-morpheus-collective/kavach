@@ -31,9 +31,19 @@ class _MyAppState extends State<MyApp> {
   var _hasPermissions = false;
 
   void _fetchPermissionStatus() {
-    Permission.locationWhenInUse.serviceStatus.then((status) {
-      setState(() => _hasPermissions = status == ServiceStatus.enabled);
+    Permission.locationWhenInUse.status.then((status) {
+      setState(() => _hasPermissions = status == PermissionStatus.granted);
+    }).catchError((e) {
+      print(e);
     });
+
+    if (!_hasPermissions) {
+      Permission.locationWhenInUse.request().then((status) {
+        setState(() => _hasPermissions = status == PermissionStatus.granted);
+      }).catchError((e) {
+        print(e);
+      });
+    }
   }
 
   @override
@@ -55,7 +65,8 @@ class _MyAppState extends State<MyApp> {
           ? const LogInScreen()
           : const Scaffold(
               body: Center(
-                child: Text("Grant location permissions to use this app!"),
+                child:
+                    Text("Please grant location permission to use this app!"),
               ),
             ),
     );

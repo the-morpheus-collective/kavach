@@ -296,26 +296,29 @@ class _VishnuState extends State<VishnuScreen> {
     );
 
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       drawer: myDrawer,
       appBar: getAppBar(_scaffoldKey),
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            hero_icon,
-            vishnu_text,
-            subtitle_text,
-            space,
-            from_text_input,
-            space,
-            to_text_input,
-            divider,
-            all_contacts,
-            divider,
-            bottom_buttons
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              hero_icon,
+              vishnu_text,
+              subtitle_text,
+              space,
+              from_text_input,
+              space,
+              to_text_input,
+              divider,
+              all_contacts,
+              divider,
+              bottom_buttons
+            ],
+          ),
         ),
       ),
     );

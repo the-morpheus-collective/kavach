@@ -124,7 +124,7 @@ Future<String?> getUserName() async {
       .eq('phone_number', phoneNumber as Object);
 
   if (response.length == 0) {
-    return null;
+    return "Placeholder User";
   }
 
   return response[0]['username'] as String;
@@ -140,25 +140,34 @@ final Widget myDrawer = Drawer(
           image: AssetImage("assets/images/title_image.png"),
           height: 70,
         ),
-        Center(
-          child: RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                color: Color(0xFF000000),
-                fontSize: 20,
-              ),
-              children: <TextSpan>[
-                const TextSpan(text: "Hey, "),
-                TextSpan(
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+        FutureBuilder<String?>(
+            future: getUserName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: Color(0xFF000000),
+                      fontSize: 20,
+                    ),
+                    children: <TextSpan>[
+                      const TextSpan(text: "Hey, "),
+                      TextSpan(
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        text: snapshot.data,
+                      )
+                    ],
                   ),
-                  text: "Vardhaman",
-                )
-              ],
-            ),
-          ),
-        ),
+                ),
+              );
+            }),
         const SizedBox(height: 20),
         const Divider(
           color: Color(0xff000000),

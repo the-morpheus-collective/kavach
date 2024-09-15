@@ -58,7 +58,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isLoading = false;
       });
 
-      // @PJR - This is where we will navigate to the next screen
       Navigator.push(
         context,
         MaterialPageRoute(

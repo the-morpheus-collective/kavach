@@ -10,6 +10,7 @@ import 'package:kavach/utils/map.dart';
 import 'package:keyboard_detection/keyboard_detection.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final List<FabData> fabData = [
   FabData(
@@ -393,25 +394,13 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                               minimumSize: const Size(0, 0),
                             ),
-                            onPressed: () {
-                              LatLng currentCoords =
-                                  const LatLng(30.76856, 76.575366);
-                              getCurrentLocation().then((value) {
-                                currentCoords = value;
-                              });
-
-                              LatLng PoPoCoords =
-                                  const LatLng(30.76856, 76.575366);
-
-                              getNearestPoliceStation(currentCoords)
-                                  .then((value) {
-                                PoPoCoords = value;
-                              });
-
-                              Uri route =
-                                  getRouteURLToCoordinates(currentCoords);
-
-                              // open Uri link in browser
+                            onPressed: () async {
+                              LatLng currentCoords = await getCurrentLocation();
+                              LatLng poPoCoords =
+                                  await getNearestPoliceStation(currentCoords);
+                              Uri route = getRouteURLToCoordinates(
+                                  currentCoords, poPoCoords);
+                              launchUrl(route);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -438,11 +427,18 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                               minimumSize: const Size(0, 0),
                             ),
-                            onPressed: () {},
+                            onPressed: () async {
+                              LatLng currentCoords = await getCurrentLocation();
+                              LatLng hospitalCoords =
+                                  await getNearestHospital(currentCoords);
+                              Uri route = getRouteURLToCoordinates(
+                                  currentCoords, hospitalCoords);
+                              launchUrl(route);
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                const Icon(Icons.monitor_heart, size: 20),
+                                const Icon(Icons.local_hospital, size: 20),
                                 const SizedBox(width: 4),
                                 Text(
                                   "hospital",

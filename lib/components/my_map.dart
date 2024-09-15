@@ -7,6 +7,7 @@ import 'package:kavach/components/main_component.dart';
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vector_map_tiles/vector_map_tiles.dart';
 import 'package:vector_tile_renderer/vector_tile_renderer.dart' hide Theme;
 
@@ -64,6 +65,8 @@ class _MyMapState extends State<MyMap> {
   }
 
   Future<LatLng> _getCurrentLocation() async {
+    await Permission.locationWhenInUse.request(); // double check
+
     final position = await Geolocator.getCurrentPosition();
     return LatLng(position.latitude, position.longitude);
   }
