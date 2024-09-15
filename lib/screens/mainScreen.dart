@@ -11,6 +11,122 @@ class OptionData {
   OptionData({required this.image, required this.text, required this.route});
 }
 
+class FabData {
+  final AssetImage image;
+  final String text;
+  final Color color;
+  final void Function() onPressed;
+
+  FabData({
+    required this.image,
+    required this.text,
+    required this.color,
+    required this.onPressed,
+  });
+}
+
+final List<FabData> fabData = [
+  FabData(
+    image: const AssetImage("assets/images/fab/shield.png"),
+    text: "Other",
+    color: const Color(0xFFB3B3B3),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/children.png"),
+    text: "Children in Danger",
+    color: const Color(0xFF7196F4),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/street.png"),
+    text: "Street Harassment",
+    color: const Color(0xFF7FE3E6),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/natural.png"),
+    text: "Natural Disasters",
+    color: const Color(0xFFE67F80),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/volatile.png"),
+    text: "Volatile Groups",
+    color: const Color(0xFF97E67F),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/harassment.png"),
+    text: "Sexual Harassment",
+    color: const Color(0xFFFF66BA),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/theft.png"),
+    text: "Theft/Pickpocketing",
+    color: const Color(0xFFA57FE6),
+    onPressed: () {},
+  ),
+  FabData(
+    image: const AssetImage("assets/images/fab/physical.png"),
+    text: "Physical Conflict",
+    color: const Color(0xFFFFD666),
+    onPressed: () {},
+  ),
+];
+
+List<Widget> _getFabElements() {
+  var widgetList = <Widget>[];
+
+  // for each element in fabData,
+  // create a FloatingActionButton
+
+  // reverse fabData
+  var fabDataReversed = fabData.reversed.toList();
+
+  for (var data in fabDataReversed) {
+    widgetList.add(
+      TextButton(
+        onPressed: data.onPressed,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(
+              0xFF242829,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(100)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  data.text,
+                  style: TextStyle(
+                    color: data.color,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 6.0),
+                Image(
+                  image: data.image,
+                  width: 30.0,
+                  height: 30.0,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  return widgetList;
+}
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -19,7 +135,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final DraggableScrollableController sheetController =
       DraggableScrollableController();
 
@@ -109,6 +225,7 @@ class _MainScreenState extends State<MainScreen> {
               centerTitle: true,
             )
           : null,
+      floatingActionButtonLocation: ExpandableFab.location,
       body: Center(
         child: Stack(
           children: <Widget>[
@@ -132,80 +249,80 @@ class _MainScreenState extends State<MainScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 4.0, 90.0),
               child: ExpandableFab(
-                // pos: ExpandableFabPos.right,
+                pos: ExpandableFabPos.right,
+                overlayStyle: ExpandableFabOverlayStyle(
+                  color: Colors.black.withOpacity(0.5),
+                  blur: 0.2,
+                  // borderRadius: BorderRadius.circular(100),
+                ),
                 type: ExpandableFabType.up,
-                distance: 50,
+                distance: 60,
                 openButtonBuilder: FloatingActionButtonBuilder(
-                  size: 100,
+                  size: 170,
                   builder: (BuildContext context, void Function()? onPressed,
                       Animation<double> progress) {
-                    return Container(
-                      width: 130,
-                      decoration: const BoxDecoration(
-                        color: Color(
-                          0xFF242829,
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        width: 110,
+                        decoration: const BoxDecoration(
+                          color: Color(
+                            0xFF242829,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(100)),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(
-                              Icons.report,
-                              color: Colors.white,
-                              size: 40.0,
-                            ),
-                            Text(
-                              "Report",
-                              style: TextStyle(
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                Icons.report,
                                 color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                size: 30.0,
                               ),
-                            ),
-                          ],
+                              Text(
+                                "Report",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
                 closeButtonBuilder: FloatingActionButtonBuilder(
-                  size: 100,
+                  size: 170,
                   builder: (BuildContext context, void Function()? onPressed,
                       Animation<double> progress) {
-                    return Container(
-                      width: 64,
-                      decoration: const BoxDecoration(
-                        color: Color(
-                          0xFF242829,
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        width: 46,
+                        decoration: const BoxDecoration(
+                          color: Color(
+                            0xFF242829,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(100)),
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(100)),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Icon(
-                          Icons.close,
-                          color: Color(0xFFFF6666),
-                          size: 40.0,
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          child: Icon(
+                            Icons.close,
+                            color: Color(0xFFFF6666),
+                            size: 30.0,
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
-                children: [
-                  FloatingActionButton.small(
-                    heroTag: null,
-                    child: const Icon(Icons.edit),
-                    onPressed: () {},
-                  ),
-                  FloatingActionButton.small(
-                    heroTag: null,
-                    child: const Icon(Icons.search),
-                    onPressed: () {},
-                  ),
-                ],
+                children: _getFabElements(),
               ),
             ),
             DraggableScrollableSheet(
