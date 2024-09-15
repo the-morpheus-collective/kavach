@@ -71,6 +71,44 @@ final List<FabData> fabData = [
   ),
 ];
 
+enum TypeFilter {
+  other,
+  children,
+  street,
+  natural,
+  volatile,
+  harassment,
+  theft,
+  physical
+}
+
+final Map<TypeFilter, FabData> fabMap = {
+  for (var data in fabData) getTypeFilter(data.text): data,
+};
+
+TypeFilter getTypeFilter(String text) {
+  switch (text) {
+    case "Other":
+      return TypeFilter.other;
+    case "Children in Danger":
+      return TypeFilter.children;
+    case "Street Harassment":
+      return TypeFilter.street;
+    case "Natural Disasters":
+      return TypeFilter.natural;
+    case "Volatile Groups":
+      return TypeFilter.volatile;
+    case "Sexual Harassment":
+      return TypeFilter.harassment;
+    case "Theft/Pickpocketing":
+      return TypeFilter.theft;
+    case "Physical Conflict":
+      return TypeFilter.physical;
+    default:
+      throw Exception("Invalid text: $text");
+  }
+}
+
 List<Widget> _getFabElements() {
   var widgetList = <Widget>[];
 
@@ -153,6 +191,17 @@ class _MainScreenState extends State<MainScreen> {
       }
     }
   }
+
+  Set<TypeFilter> filters = <TypeFilter>{
+    TypeFilter.other,
+    TypeFilter.children,
+    TypeFilter.street,
+    TypeFilter.natural,
+    TypeFilter.volatile,
+    TypeFilter.harassment,
+    TypeFilter.theft,
+    TypeFilter.physical,
+  };
 
   @override
   void initState() {
@@ -257,7 +306,9 @@ class _MainScreenState extends State<MainScreen> {
                               minimumSize: const Size(0, 0),
                             ),
                             onPressed: () {
-                              _filterEnabled = !_filterEnabled;
+                              setState(() {
+                                _filterEnabled = !_filterEnabled;
+                              });
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -329,8 +380,65 @@ class _MainScreenState extends State<MainScreen> {
                         ],
                       ),
                       _filterEnabled
-                          ? const SizedBox(
-                              child: Text("cute filter"),
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 12.0),
+                                child: Wrap(
+                                  spacing: 5.0,
+                                  // crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: TypeFilter.values.map(
+                                    (TypeFilter type) {
+                                      FabData fab = fabMap[type]!;
+
+                                      return FilterChip(
+                                        avatar:
+                                            Image(image: fab.image, width: 20),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                        ),
+                                        chipAnimationStyle: ChipAnimationStyle(
+                                          selectAnimation: AnimationStyle(
+                                            duration: const Duration(
+                                              milliseconds: 10,
+                                            ),
+                                            curve: Curves.easeInOut,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 6, 8, 6),
+                                        checkmarkColor: Colors.white,
+                                        surfaceTintColor: fab.color,
+                                        backgroundColor:
+                                            const Color(0xEE242829),
+                                        selectedColor: const Color(0xFF242829),
+                                        selectedShadowColor: Colors.black,
+                                        label: Text(
+                                          fab.text,
+                                          style: TextStyle(
+                                            color: fab.color,
+                                            fontFamily:
+                                                GoogleFonts.jetBrainsMono()
+                                                    .fontFamily,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        selected: filters.contains(type),
+                                        onSelected: (bool selected) {
+                                          setState(() {
+                                            if (selected) {
+                                              filters.add(type);
+                                            } else {
+                                              filters.remove(type);
+                                            }
+                                          });
+                                        },
+                                      );
+                                    },
+                                  ).toList(),
+                                ),
+                              ),
                             )
                           : Container(),
                     ],
