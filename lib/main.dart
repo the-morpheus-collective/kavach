@@ -17,7 +17,7 @@ Future<void> main() async {
     anonKey: s.supabaseAnonKey,
   );
 
-  runApp(const VishnuScreen());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

@@ -46,37 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return response[0]['username'] as String;
   }
 
-  Future<void> storeDB() async {
-    try {
-      final response =
-          await Supabase.instance.client.from('emergency_contacts').insert({
-        'name': _nameController.text,
-      });
-
-      print(response);
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: Text('Error: ${error.toString()}'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -61,7 +61,6 @@ Future<String?> getUserName() async {
   return response[0]['username'] as String;
 }
 
-
 final Widget myDrawer = Drawer(
   shape: const RoundedRectangleBorder(/* border radius = 0 */),
   backgroundColor: const Color(0xFFFFFFFF),
