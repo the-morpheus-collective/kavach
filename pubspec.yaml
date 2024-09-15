@@ -23,6 +23,13 @@ dependencies:
   keyboard_detection: ^0.7.3
   twilio_flutter: ^0.9.0
   flutter_otp_text_field: ^1.2.0
+  flutter_map_location_marker:
+      git: 
+        url: https://github.com/domhel/flutter_map_location_marker.git
+        ref: 1c6d946
+  # flutter_compass: '^0.8.0'
+  geolocator: ^13.0.1
+  permission_handler: ^11.3.1
 
 dev_dependencies:
     flutter_test:

@@ -25,8 +25,6 @@ Container make_report_widget(String name, int phone_number) {
   );
 }
 
-
-
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
 
@@ -121,18 +119,15 @@ class _ReportsState extends State<ReportsScreen> {
     );
   }
 
-void _update_report_widgets() {
-    setState( () { 
+  void _update_report_widgets() {
+    setState(() {
       const half_space = const SizedBox(
-      width: 8,
-      height: 8,
-    );
+        width: 8,
+        height: 8,
+      );
       _report_widgets.addAll(
-        <Widget>[
-          make_report_widget("Pranjal Rastogi", 9910708969),
-          half_space
-        ],
+        <Widget>[make_report_widget("Pranjal Rastogi", 9910708969), half_space],
       );
     });
-}
+  }
 }

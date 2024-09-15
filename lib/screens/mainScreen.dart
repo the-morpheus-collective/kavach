@@ -136,6 +136,7 @@ class _MainScreenState extends State<MainScreen> {
 
   var emergencyMode = false;
   var keyboardState = KeyboardState.unknown;
+  var _filterEnabled = false;
 
   void sheetStateListener() {
     if (sheetController.size >= 0.9) {
@@ -201,44 +202,139 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                  child: TextFormField(
-                      // controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Where do you want to go',
-                        hintStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: const BorderSide(
-                            color: Colors.black,
-                            width: 2.0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: const BorderSide(
-                            color: Colors.black,
-                            width: 2.0,
-                          ),
-                        ),
-                        contentPadding:
-                            const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: const Icon(
-                              Icons.search,
-                              color: Color(0xFF242829),
-                              size: 40.0,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                          // controller: _controller,
+                          decoration: InputDecoration(
+                            hintText: 'Where do you want to go',
+                            hintStyle: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                              borderSide: const BorderSide(
+                                color: Colors.black,
+                                width: 2.0,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                              borderSide: const BorderSide(
+                                color: Colors.black,
+                                width: 2.0,
+                              ),
+                            ),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: const Icon(
+                                  Icons.search,
+                                  color: Color(0xFF242829),
+                                  size: 40.0,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          keyboardType: TextInputType.text,
+                          onTap: () {}),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF000000),
+                              backgroundColor: const Color(0xFFF1B101),
+                              enableFeedback: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                              minimumSize: const Size(0, 0),
+                            ),
+                            onPressed: () {
+                              _filterEnabled = !_filterEnabled;
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.filter_alt, size: 20),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "filter",
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFFFFFFFF),
+                              backgroundColor: const Color(0xFF242829),
+                              enableFeedback: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                              minimumSize: const Size(0, 0),
+                            ),
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.local_police, size: 20),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "police station",
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFFFFFFFF),
+                              backgroundColor: const Color(0xFF242829),
+                              enableFeedback: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100.0),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                              minimumSize: const Size(0, 0),
+                            ),
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.monitor_heart, size: 20),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "hospital",
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      keyboardType: TextInputType.text,
-                      onTap: () {}),
+                      _filterEnabled
+                          ? const SizedBox(
+                              child: Text("cute filter"),
+                            )
+                          : Container(),
+                    ],
+                  ),
                 ),
                 !(keyboardState == KeyboardState.visible ||
                         keyboardState == KeyboardState.visibling ||

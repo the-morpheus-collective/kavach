@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:vector_map_tiles/vector_map_tiles.dart';
@@ -79,6 +80,7 @@ class _MyMapState extends State<MyMap> {
           tileOffset: TileOffset.mapbox,
           layerMode: VectorTileLayerMode.vector,
         ),
+        CurrentLocationLayer(),
         // HeatMapLayer(
         //   heatMapDataSource: InMemoryHeatMapDataSource(data: data),
         //   heatMapOptions: HeatMapOptions(gradient: gradient, minOpacity: 0.2),

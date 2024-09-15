@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kavach/screens/mainScreen.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // import 'package:kavach/screens/otpScreen.dart';
@@ -14,11 +16,30 @@ Future<void> main() async {
     anonKey: s.supabaseAnonKey,
   );
 
-  runApp(const MainApp());
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var _hasPermissions = false;
+
+  void _fetchPermissionStatus() {
+    Permission.locationWhenInUse.serviceStatus.then((status) {
+      setState(() => _hasPermissions = status == ServiceStatus.enabled);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPermissionStatus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +47,14 @@ class MainApp extends StatelessWidget {
 
     return MaterialApp(
       theme: baseTheme.copyWith(
-          textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme)),
+        textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme),
+      ),
       debugShowCheckedModeBanner: false,
-      home: const LogInScreen(),
+      home: _hasPermissions
+          ? const MainScreen()
+          : const Center(
+              child: Text("Grant permission to use this app!"),
+            ),
     );
   }
 }
