@@ -8,7 +8,7 @@ Future<LatLng> getCurrentLocation() async {
 }
 
 Future<LatLng> getNearestPoliceStation(LatLng currentCoords) async {
-  http.Response res = await http.get(
+  Response res = await get(
     Uri.parse(
         "https://nominatim.openstreetmap.org/search?q=$currentCoords&limit=5&format=json"),
   );
