@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:twilio_flutter/twilio_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'dart:ui';
 
 import 'package:kavach/secrets.dart' as s;
 import 'package:kavach/components/components.dart';
+import 'package:kavach/screens/registerScreen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -18,6 +20,8 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   bool isButtonEnabled = false;
+  bool _isLoading = false;
+
   Color primaryColor = const Color(0xFF121212);
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
@@ -38,6 +42,9 @@ class _OtpScreenState extends State<OtpScreen> {
     final otp = _otpController.text;
 
     try {
+      setState(() {
+        _isLoading = true;
+      });
       final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
       final response = await supabaseClient.auth.verifyOTP(
         phone: '+91${widget.phoneNumber}',
@@ -46,25 +53,42 @@ class _OtpScreenState extends State<OtpScreen> {
       );
 
       print(response);
+      setState(() {
+        _isLoading = false;
+      });
 
       if (response.user != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Success'),
-              content: const Text('OTP verification successful!'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  RegisterScreen(phoneNumber: widget.phoneNumber),
+            ));
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+
+        //     return AlertDialog(
+        //       title: const Text('Success'),
+        //       content: const Text('OTP verification successful!'),
+        //       actions: <Widget>[
+        //         TextButton(
+        //           onPressed: () {
+        //             Navigator.of(context).pop();
+        //             Navigator.push(
+        //               context,
+        //               MaterialPageRoute(
+        //                 builder: (context) =>
+        //                     RegisterScreen(phoneNumber: widget.phoneNumber),
+        //               ),
+        //             );
+        //           },
+        //           child: const Text('OK'),
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // );
       } else {
         showDialog(
           context: context,
@@ -108,8 +132,8 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
+      body: Stack(children: [
+        Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +189,18 @@ class _OtpScreenState extends State<OtpScreen> {
             ],
           ),
         ),
-      ),
+        if (_isLoading)
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child:
+                    LoadingAnimationWidget.beat(color: Colors.white, size: 50),
+              ),
+            ),
+          ),
+      ]),
     );
   }
 }
