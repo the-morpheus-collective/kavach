@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kavach/components/my_map.dart';
 
 class OptionData {
   final IconData image;
@@ -75,44 +76,51 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xffffffff),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.menu,
-            size: 40,
-            color: Color(0xff242829),
-          ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: const Center(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage("https://placehold.co/200/png"),
+      appBar: !emergencyMode
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.menu,
+                  size: 40,
+                  color: Color(0xff242829),
+                ),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
               ),
-            ),
-            onPressed: () {},
-          ),
-        ],
-        backgroundColor: const Color(0xffffffff),
-        title: const Image(
-          image: AssetImage("assets/images/title_image.png"),
-          height: 50,
-        ),
-        centerTitle: true,
-      ),
+              actions: [
+                IconButton(
+                  icon: const Center(
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundImage:
+                          NetworkImage("https://placehold.co/200/png"),
+                    ),
+                  ),
+                  onPressed: () {},
+                ),
+              ],
+              backgroundColor: const Color(0xffffffff),
+              title: const Image(
+                image: AssetImage("assets/images/title_image.png"),
+                height: 50,
+              ),
+              centerTitle: true,
+            )
+          : null,
       body: Center(
         child: Stack(
           children: <Widget>[
-            const Center(child: Text("Map")),
+            const Center(
+              child: MyMap(),
+            ),
             DraggableScrollableSheet(
               controller: sheetController,
               initialChildSize: _sheetPosition,
               minChildSize: _sheetPosition,
               maxChildSize: 1,
+              snap: true,
+              snapSizes: const [1.0],
               builder:
                   (BuildContext context, ScrollController scrollController) {
                 return Container(
@@ -161,8 +169,6 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 );
               },
-              snap: true,
-              snapSizes: const [1.0],
             ),
           ],
         ),
