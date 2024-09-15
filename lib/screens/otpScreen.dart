@@ -8,6 +8,7 @@ import 'dart:ui';
 import 'package:kavach/secrets.dart' as s;
 import 'package:kavach/components/components.dart';
 import 'package:kavach/screens/registerScreen.dart';
+import 'package:kavach/screens/tempScreen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -58,6 +59,13 @@ class _OtpScreenState extends State<OtpScreen> {
       });
 
       if (response.user != null) {
+        if (supabaseClient.auth.currentUser != null) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TempScreen(),
+              ));
+        }
         Navigator.push(
             context,
             MaterialPageRoute(
