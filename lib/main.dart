@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kavach/screens/mainScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+// import 'package:kavach/screens/otpScreen.dart';
+import 'package:kavach/screens/loginScreen.dart';
+// import 'package:kavach/screens/mainScreen.dart';
 
 import 'package:kavach/secrets.dart' as s;
 
@@ -19,7 +22,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MainScreen(),
+      home: LogInScreen(),
+      // OtpScreen(phoneNumber: '9611118400',),
     );
   }
 }

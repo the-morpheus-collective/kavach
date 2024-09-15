@@ -165,6 +165,14 @@ packages:
       relative: true
     source: path
     version: "0.0.6"
+  flutter_otp_text_field:
+    dependency: "direct main"
+    description:
+      name: flutter_otp_text_field
+      sha256: "77e5ca5af01d2adf79757ffab4ad5ca29d5c710b3edf29e590fa5db7551d760e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -183,6 +191,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  get_it:
+    dependency: transitive
+    description:
+      name: get_it
+      sha256: d85128a5dae4ea777324730dc65edd9c9f43155c109d5cc0a69cab74139fbac1
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.7.0"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: b1ac0fe2832c9cc95e5e88b57d627c5e68c223b9657f4b96e1487aa9098c7b82
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.2.1"
   gotrue:
     dependency: transitive
     description:
@@ -287,6 +311,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   matcher:
     dependency: transitive
     description:
@@ -588,6 +620,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
+  twilio_flutter:
+    dependency: "direct main"
+    description:
+      name: twilio_flutter
+      sha256: "9ae140004609e6eef8474a53997613b29a1549161e6e65b10135aa361193587c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
   typed_data:
     dependency: transitive
     description:
