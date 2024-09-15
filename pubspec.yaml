@@ -20,6 +20,7 @@ dependencies:
   google_fonts: ^6.2.1
   loading_animation_widget: ^1.2.1
   flutter_expandable_fab: ^2.3.0
+  keyboard_detection: ^0.7.3
 
 dev_dependencies:
   flutter_test:
