@@ -10,11 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  flutter_map: ^6.0.0
+  flutter_map: ^7.0.2
   latlong2: ^0.9.1
-  vector_map_tiles: ^7.0.0
+  vector_map_tiles: ^8.0.0
   vector_tile_renderer: ^5.2.0
-  flutter_map_heatmap: any
+  flutter_map_heatmap:
+    path: ./fluttermap_heatmap
 
 dev_dependencies:
   flutter_test:

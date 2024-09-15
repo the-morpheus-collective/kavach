@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dart_earcut:
+    dependency: transitive
+    description:
+      name: dart_earcut
+      sha256: "41b493147e30a051efb2da1e3acb7f38fe0db60afba24ac1ea5684cee272721e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   executor_lib:
     dependency: transitive
     description:
@@ -98,18 +106,17 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_map
-      sha256: "87cc8349b8fa5dccda5af50018c7374b6645334a0d680931c1fe11bce88fa5bb"
+      sha256: "2ecb34619a4be19df6f40c2f8dce1591675b4eff7a6857bd8f533706977385da"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.1"
+    version: "7.0.2"
   flutter_map_heatmap:
     dependency: "direct main"
     description:
-      name: flutter_map_heatmap
-      sha256: "0544a980da9d29ec41bd27f507e46655306d0499dfb98379497f9360a139da39"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.7"
+      path: fluttermap_heatmap
+      relative: true
+    source: path
+    version: "0.0.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -396,10 +403,10 @@ packages:
     dependency: "direct main"
     description:
       name: vector_map_tiles
-      sha256: "79394902d04cefe6f93eb0a80afe48d8b76fec8d90cf6d6bd5a7e34abe577d1c"
+      sha256: "4dc9243195c1a49c7be82cc1caed0d300242bb94381752af5f6868d9d1404e25"
       url: "https://pub.dev"
     source: hosted
-    version: "7.3.1"
+    version: "8.0.0"
   vector_math:
     dependency: transitive
     description:
