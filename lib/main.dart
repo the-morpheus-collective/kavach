@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kavach/screens/mainScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+// import 'package:kavach/screens/otpScreen.dart';
+import 'package:kavach/screens/loginScreen.dart';
+// import 'package:kavach/screens/mainScreen.dart';
 
 import 'package:kavach/secrets.dart' as s;
 
@@ -25,7 +28,7 @@ class MainApp extends StatelessWidget {
       theme: baseTheme.copyWith(
           textTheme: GoogleFonts.interTextTheme(baseTheme.textTheme)),
       debugShowCheckedModeBanner: false,
-      home: const MainScreen(),
+      home: const LogInScreen(),
     );
   }
 }
