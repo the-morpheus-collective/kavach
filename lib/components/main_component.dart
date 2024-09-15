@@ -3,6 +3,9 @@ import 'package:kavach/screens/mainScreen.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
 import 'package:kavach/screens/reportsScreen.dart';
 import 'package:kavach/screens/profileScreen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:kavach/secrets.dart' as s;
 
 class OptionData {
   final IconData image;
@@ -35,6 +38,30 @@ final List<OptionData> options = <OptionData>[
   )
 ];
 
+final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
+final _storage = const FlutterSecureStorage();
+
+Future<String?> getPhoneNumber() async {
+  final user = await _storage.read(key: 'user_id');
+  print(user);
+  return user;
+}
+
+Future<String?> getUserName() async {
+  final phoneNumber = await getPhoneNumber();
+  final response = await supabaseClient
+      .from('users')
+      .select()
+      .eq('phone_number', phoneNumber as Object);
+
+  if (response.length == 0) {
+    return null;
+  }
+
+  return response[0]['username'] as String;
+}
+
+
 final Widget myDrawer = Drawer(
   shape: const RoundedRectangleBorder(/* border radius = 0 */),
   backgroundColor: const Color(0xFFFFFFFF),
@@ -46,22 +73,33 @@ final Widget myDrawer = Drawer(
           height: 70,
         ),
         Center(
-          child: RichText(
-            text: const TextSpan(
-              style: TextStyle(
-                color: Color(0xFF000000),
-                fontSize: 20,
-              ),
-              children: <TextSpan>[
-                TextSpan(text: "Hey, "),
-                TextSpan(
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
+          child: FutureBuilder<String?>(
+            future: getUserName(),
+            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              return RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: Color(0xFF000000),
+                    fontSize: 20,
                   ),
-                  text: "Vardhaman",
-                )
-              ],
-            ),
+                  children: <TextSpan>[
+                    const TextSpan(text: "Hey, "),
+                    TextSpan(
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                      ),
+                      text: snapshot.data?.split(" ")[0],
+                    )
+                  ],
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: 20),
@@ -131,7 +169,17 @@ AppBar getAppBar(GlobalKey<ScaffoldState> scaffoldKey) {
             backgroundImage: NetworkImage("https://placehold.co/200/png"),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          // route to profile screen
+          BuildContext context = scaffoldKey.currentContext!;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return options[3].route;
+              },
+            ),
+          );
+        },
       ),
     ],
     backgroundColor: const Color(0xffffffff),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:ui';
 
+import 'package:kavach/screens/mainScreen.dart';
 import 'package:kavach/components/components.dart';
 import 'package:kavach/screens/otpScreen.dart';
 import 'package:kavach/secrets.dart' as s;
@@ -18,13 +20,38 @@ class LogInScreen extends StatefulWidget {
 
 class _LogInScreenState extends State<LogInScreen> {
   final TextEditingController _controller = TextEditingController();
+  final _storage = const FlutterSecureStorage();
   bool _isComplete = false;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _checkSession();
+
     _controller.addListener(_checkInput);
+  }
+
+  Future<bool> _isUserRegistered() async {
+    final userId = await _storage.read(key: 'user_id');
+    return userId != null;
+  }
+
+  Future<void> _updateSession(String phoneNumber) async {
+    await _storage.write(key: 'phoneNumber', value: phoneNumber);
+  }
+
+  void _checkSession() {
+    _isUserRegistered().then((isRegistered) {
+      if (isRegistered) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainScreen(),
+          ),
+        );
+      }
+    });
   }
 
   void _checkInput() {
@@ -48,6 +75,8 @@ class _LogInScreenState extends State<LogInScreen> {
       setState(() {
         _isLoading = false;
       });
+
+      _updateSession(phoneNumber);
 
       Navigator.push(
         context,

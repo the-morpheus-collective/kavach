@@ -16,6 +16,7 @@ CREATE TABLE Users (
 CREATE TABLE EmergencyContacts (
     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE,
     friend_id INT REFERENCES Users(user_id) ON DELETE CASCADE,
+    emergency_contacts JSONB,
     status VARCHAR(20) DEFAULT 'unverified',  -- Can be unverified, verified
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, friend_id)
