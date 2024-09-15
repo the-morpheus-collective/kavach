@@ -245,9 +245,13 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
             ),
-            const Text("You only live once. Save yourself."),
+            const TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 4.0, 90.0),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0.0, 90.0),
               child: ExpandableFab(
                 pos: ExpandableFabPos.right,
                 overlayStyle: ExpandableFabOverlayStyle(
