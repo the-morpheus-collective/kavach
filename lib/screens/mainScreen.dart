@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/components/my_map.dart';
+import 'package:kavach/screens/vishnuScreen.dart';
 
 class OptionData {
   final IconData image;
@@ -74,6 +75,29 @@ final List<FabData> fabData = [
     color: const Color(0xFFFFD666),
     onPressed: () {},
   ),
+];
+
+final List<OptionData> options = <OptionData>[
+  OptionData(
+    image: Icons.home,
+    text: "Home",
+    route: const MainScreen(),
+  ),
+  OptionData(
+    image: Icons.share_location,
+    text: "Vishnu",
+    route: const VishnuScreen(),
+  ),
+  OptionData(
+    image: Icons.report,
+    text: "My Reports",
+    route: const MainScreen(),
+  ),
+  OptionData(
+    image: Icons.person,
+    text: "My Account",
+    route: const MainScreen(),
+  )
 ];
 
 List<Widget> _getFabElements() {
@@ -162,29 +186,6 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     sheetController.addListener(sheetStateListener);
   }
-
-  final List<OptionData> options = <OptionData>[
-    OptionData(
-      image: Icons.home,
-      text: "Home",
-      route: const MainScreen(),
-    ),
-    OptionData(
-      image: Icons.share_location,
-      text: "Vishnu",
-      route: const MainScreen(),
-    ),
-    OptionData(
-      image: Icons.report,
-      text: "My Reports",
-      route: const MainScreen(),
-    ),
-    OptionData(
-      image: Icons.person,
-      text: "My Account",
-      route: const MainScreen(),
-    )
-  ];
 
   final double _sheetPosition = 0.13;
 
