@@ -4,6 +4,8 @@
 	<dict>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>NSContactsUsageDescription</key>
+		<string>This app requires access to contacts.</string>
 		<key>CFBundleDisplayName</key>
 		<string>Kavach</string>
 		<key>CFBundleExecutable</key>
