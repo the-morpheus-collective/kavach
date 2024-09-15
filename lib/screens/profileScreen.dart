@@ -27,14 +27,14 @@ Container make_contact_widget(String name, int phone_number) {
 
 
 
-class VishnuScreen extends StatefulWidget {
-  const VishnuScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<VishnuScreen> createState() => _VishnuState();
+  State<ProfileScreen> createState() => _ProfileState();
 }
 
-class _VishnuState extends State<VishnuScreen> {
+class _ProfileState extends State<ProfileScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Widget> _contact_widgets = [];
 
@@ -44,7 +44,7 @@ class _VishnuState extends State<VishnuScreen> {
     const dark_blue = const Color(0xFF0B308E);
     const green = const Color(0xFF95F6A7);
     const hero_icon = const Icon(
-      Icons.share_location,
+      Icons.person,
       color: blue,
       size: 192.0,
     );
@@ -175,7 +175,7 @@ class _VishnuState extends State<VishnuScreen> {
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.bold,
                 )),
             const Spacer(),
             const Icon(Icons.add)

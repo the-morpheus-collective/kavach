@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
+import 'package:kavach/screens/reportsScreen.dart';
+import 'package:kavach/screens/profileScreen.dart';
 
 class OptionData {
   final IconData image;
@@ -24,12 +26,12 @@ final List<OptionData> options = <OptionData>[
   OptionData(
     image: Icons.report,
     text: "My Reports",
-    route: const MainScreen(),
+    route: const ReportsScreen(),
   ),
   OptionData(
     image: Icons.person,
     text: "My Account",
-    route: const MainScreen(),
+    route: const ProfileScreen(),
   )
 ];
 
