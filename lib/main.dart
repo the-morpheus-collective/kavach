@@ -51,9 +51,11 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       home: _hasPermissions
-          ? const MainScreen()
-          : const Center(
-              child: Text("Grant permission to use this app!"),
+          ? const LogInScreen()
+          : const Scaffold(
+              body: Center(
+                child: Text("Grant permission to use this app!"),
+              ),
             ),
     );
   }

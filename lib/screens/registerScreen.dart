@@ -5,6 +5,7 @@ import 'package:kavach/screens/mainScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:ui';
+import 'dart:async';
 
 import 'package:kavach/components/components.dart';
 import 'package:kavach/secrets.dart' as s;
@@ -21,6 +22,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _controllerFName = TextEditingController();
   final TextEditingController _controllerLName = TextEditingController();
+
   bool _isButtonEnabled = false;
   bool _isLoading = false;
 

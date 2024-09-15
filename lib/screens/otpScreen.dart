@@ -1,11 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:kavach/screens/mainScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'dart:ui';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:kavach/secrets.dart' as s;
+import 'package:kavach/screens/tempScreen.dart';
 import 'package:kavach/components/components.dart';
 import 'package:kavach/screens/registerScreen.dart';
 
@@ -25,6 +28,7 @@ class _OtpScreenState extends State<OtpScreen> {
   Color primaryColor = const Color(0xFF121212);
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
+  final _storage = const FlutterSecureStorage();
 
   void checkIfOtpIsComplete(String code) {
     if (code.length == 6) {
@@ -58,37 +62,26 @@ class _OtpScreenState extends State<OtpScreen> {
       });
 
       if (response.user != null) {
-        Navigator.push(
+        final isRegistered = await _isUserRegistered();
+        if (isRegistered) {
+          print("User is already registered");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainScreen(),
+            ),
+          );
+        } else {
+          await _updateSession(widget.phoneNumber);
+          print("User is not registered");
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
                   RegisterScreen(phoneNumber: widget.phoneNumber),
-            ));
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-
-        //     return AlertDialog(
-        //       title: const Text('Success'),
-        //       content: const Text('OTP verification successful!'),
-        //       actions: <Widget>[
-        //         TextButton(
-        //           onPressed: () {
-        //             Navigator.of(context).pop();
-        //             Navigator.push(
-        //               context,
-        //               MaterialPageRoute(
-        //                 builder: (context) =>
-        //                     RegisterScreen(phoneNumber: widget.phoneNumber),
-        //               ),
-        //             );
-        //           },
-        //           child: const Text('OK'),
-        //         ),
-        //       ],
-        //     );
-        //   },
-        // );
+            ),
+          );
+        }
       } else {
         showDialog(
           context: context,
@@ -109,6 +102,9 @@ class _OtpScreenState extends State<OtpScreen> {
         );
       }
     } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -127,6 +123,15 @@ class _OtpScreenState extends State<OtpScreen> {
         },
       );
     }
+  }
+
+  Future<bool> _isUserRegistered() async {
+    final userId = await _storage.read(key: 'user_id');
+    return userId != null;
+  }
+
+  Future<void> _updateSession(String userId) async {
+    await _storage.write(key: 'user_id', value: userId);
   }
 
   @override
