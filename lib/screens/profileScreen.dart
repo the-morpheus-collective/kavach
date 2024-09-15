@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .eq('phone_number', _phoneNumber as Object);
 
     if (response.length == 0) {
-      return null;
+      return "Placeholder User";
     }
 
     return response[0]['username'] as String;
@@ -92,7 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const CircleAvatar(
                   radius: 50,
-                  backgroundImage: NetworkImage("https://placehold.co/200/png"),
+                  backgroundImage: NetworkImage(
+                      "https://media.licdn.com/dms/image/v2/D5603AQG_NY3QFhBNbg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1669039087919?e=1732147200&v=beta&t=7hw1GZQLgc6tqXCIuJ7iodUzH3iOQLALrZR0bWdfd0s"),
                 ),
                 const SizedBox(height: 10),
                 FutureBuilder<String?>(

@@ -155,26 +155,29 @@ class _VishnuState extends State<VishnuScreen> {
     print("Scafflod key");
 
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       drawer: myDrawer,
       appBar: getAppBar(_scaffoldKey),
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            space,
-            heroIcon,
-            vishnuText,
-            subtitleText,
-            space,
-            fromTextInput,
-            space,
-            toTextInput,
-            spacer,
-            shareButtonContainer,
-            space,
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              space,
+              heroIcon,
+              vishnuText,
+              subtitleText,
+              space,
+              fromTextInput,
+              space,
+              toTextInput,
+              spacer,
+              shareButtonContainer,
+              space,
+            ],
+          ),
         ),
       ),
     );

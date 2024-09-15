@@ -62,6 +62,30 @@ TypeFilter getTypeFilter(String text) {
   }
 }
 
+// make reverse getTypeFilter
+String getTextFromTypeFilter(TypeFilter filter) {
+  switch (filter) {
+    case TypeFilter.other:
+      return "Other";
+    case TypeFilter.children:
+      return "Children in Danger";
+    case TypeFilter.street:
+      return "Street Harassment";
+    case TypeFilter.natural:
+      return "Natural Disasters";
+    case TypeFilter.volatile:
+      return "Volatile Groups";
+    case TypeFilter.harassment:
+      return "Sexual Harassment";
+    case TypeFilter.theft:
+      return "Theft/Pickpocketing";
+    case TypeFilter.physical:
+      return "Physical Conflict";
+    default:
+      throw Exception("Invalid filter: $filter");
+  }
+}
+
 class FabData {
   final AssetImage image;
   final String text;
@@ -124,7 +148,7 @@ Future<String?> getUserName() async {
       .eq('phone_number', phoneNumber as Object);
 
   if (response.length == 0) {
-    return null;
+    return "Placeholder User";
   }
 
   return response[0]['username'] as String;
@@ -140,25 +164,34 @@ final Widget myDrawer = Drawer(
           image: AssetImage("assets/images/title_image.png"),
           height: 70,
         ),
-        Center(
-          child: RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                color: Color(0xFF000000),
-                fontSize: 20,
-              ),
-              children: <TextSpan>[
-                const TextSpan(text: "Hey, "),
-                TextSpan(
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+        FutureBuilder<String?>(
+            future: getUserName(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: Color(0xFF000000),
+                      fontSize: 20,
+                    ),
+                    children: <TextSpan>[
+                      const TextSpan(text: "Hey, "),
+                      TextSpan(
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        text: snapshot.data,
+                      )
+                    ],
                   ),
-                  text: "Vardhaman",
-                )
-              ],
-            ),
-          ),
-        ),
+                ),
+              );
+            }),
         const SizedBox(height: 20),
         const Divider(
           color: Color(0xff000000),
@@ -223,7 +256,8 @@ AppBar getAppBar(GlobalKey<ScaffoldState> scaffoldKey) {
         icon: const Center(
           child: CircleAvatar(
             radius: 20,
-            backgroundImage: NetworkImage("https://placehold.co/200/png"),
+            backgroundImage: NetworkImage(
+                "https://media.licdn.com/dms/image/v2/D5603AQG_NY3QFhBNbg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1669039087919?e=1732147200&v=beta&t=7hw1GZQLgc6tqXCIuJ7iodUzH3iOQLALrZR0bWdfd0s"),
           ),
         ),
         onPressed: () {

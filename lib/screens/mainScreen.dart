@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -10,112 +11,9 @@ import 'package:kavach/utils/map.dart';
 import 'package:keyboard_detection/keyboard_detection.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-final List<FabData> fabData = [
-  FabData(
-    image: const AssetImage("assets/images/fab/shield.png"),
-    text: "Other",
-    color: const Color(0xFFB3B3B3),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/children.png"),
-    text: "Children in Danger",
-    color: const Color(0xFF7196F4),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/street.png"),
-    text: "Street Harassment",
-    color: const Color(0xFF7FE3E6),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/natural.png"),
-    text: "Natural Disasters",
-    color: const Color(0xFFE67F80),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/volatile.png"),
-    text: "Volatile Groups",
-    color: const Color(0xFF97E67F),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/harassment.png"),
-    text: "Sexual Harassment",
-    color: const Color(0xFFFF66BA),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/theft.png"),
-    text: "Theft/Pickpocketing",
-    color: const Color(0xFFA57FE6),
-    onPressed: () {},
-  ),
-  FabData(
-    image: const AssetImage("assets/images/fab/physical.png"),
-    text: "Physical Conflict",
-    color: const Color(0xFFFFD666),
-    onPressed: () {},
-  ),
-];
-
-final Map<TypeFilter, FabData> fabMap = {
-  for (var data in fabData) getTypeFilter(data.text): data,
-};
-
-List<Widget> _getFabElements() {
-  var widgetList = <Widget>[];
-
-  // for each element in fabData,
-  // create a FloatingActionButton
-
-  // reverse fabData
-  var fabDataReversed = fabData.reversed.toList();
-
-  for (var data in fabDataReversed) {
-    widgetList.add(
-      TextButton(
-        onPressed: data.onPressed,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color(
-              0xFF242829,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(100)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  data.text,
-                  style: TextStyle(
-                    color: data.color,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 6.0),
-                Image(
-                  image: data.image,
-                  width: 30.0,
-                  height: 30.0,
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  return widgetList;
-}
+import 'package:kavach/components/reporter.dart' as r;
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -137,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     if (sheetController.size >= 0.9) {
       if (!emergencyMode) {
         setState(() {
+          emergencyTimer();
           emergencyMode = true;
         });
       }
@@ -172,8 +71,187 @@ class _MainScreenState extends State<MainScreen> {
   LocData? _selectedLocation;
   late Iterable<LocData> _lastOptions = <LocData>[];
 
+  final snackBar = const SnackBar(
+    content: Text('Report Submitted!'),
+  );
+
+  var emergencySeconds = 5;
+  Timer _timer = Timer(Duration.zero, () {});
+
+  void emergencyTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (emergencySeconds == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            emergencySeconds--;
+          });
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<FabData> fabData = [
+      FabData(
+        image: const AssetImage("assets/images/fab/shield.png"),
+        text: "Other",
+        color: const Color(0xFFB3B3B3),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.other, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/children.png"),
+        text: "Children in Danger",
+        color: const Color(0xFF7196F4),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.children, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/street.png"),
+        text: "Street Harassment",
+        color: const Color(0xFF7FE3E6),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.street, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/natural.png"),
+        text: "Natural Disasters",
+        color: const Color(0xFFE67F80),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.natural, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/volatile.png"),
+        text: "Volatile Groups",
+        color: const Color(0xFF97E67F),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.volatile, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/harassment.png"),
+        text: "Sexual Harassment",
+        color: const Color(0xFFFF66BA),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.harassment, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/theft.png"),
+        text: "Theft/Pickpocketing",
+        color: const Color(0xFFA57FE6),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.theft, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+      FabData(
+        image: const AssetImage("assets/images/fab/physical.png"),
+        text: "Physical Conflict",
+        color: const Color(0xFFFFD666),
+        onPressed: () async {
+          bool successfulReport =
+              await r.report(TypeFilter.physical, await getCurrentLocation());
+          if (context.mounted && successfulReport) {
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+        },
+      ),
+    ];
+
+    final Map<TypeFilter, FabData> fabMap = {
+      for (var data in fabData) getTypeFilter(data.text): data,
+    };
+
+    List<Widget> getFabElements() {
+      var widgetList = <Widget>[];
+
+      // for each element in fabData,
+      // create a FloatingActionButton
+
+      // reverse fabData
+      var fabDataReversed = fabData.reversed.toList();
+
+      for (var data in fabDataReversed) {
+        widgetList.add(
+          TextButton(
+            onPressed: data.onPressed,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(
+                  0xFF242829,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(100)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      data.text,
+                      style: TextStyle(
+                        color: data.color,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 6.0),
+                    Image(
+                      image: data.image,
+                      width: 30.0,
+                      height: 30.0,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return widgetList;
+    }
+
     return PopScope(
       canPop: false,
       child: KeyboardDetection(
@@ -393,25 +471,13 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                               minimumSize: const Size(0, 0),
                             ),
-                            onPressed: () {
-                              LatLng currentCoords =
-                                  const LatLng(30.76856, 76.575366);
-                              getCurrentLocation().then((value) {
-                                currentCoords = value;
-                              });
-
-                              LatLng PoPoCoords =
-                                  const LatLng(30.76856, 76.575366);
-
-                              getNearestPoliceStation(currentCoords)
-                                  .then((value) {
-                                PoPoCoords = value;
-                              });
-
-                              Uri route =
-                                  getRouteURLToCoordinates(currentCoords);
-
-                              // open Uri link in browser
+                            onPressed: () async {
+                              LatLng currentCoords = await getCurrentLocation();
+                              LatLng poPoCoords =
+                                  await getNearestPoliceStation(currentCoords);
+                              Uri route = getRouteURLToCoordinates(
+                                  currentCoords, poPoCoords);
+                              launchUrl(route);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -438,11 +504,18 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                               minimumSize: const Size(0, 0),
                             ),
-                            onPressed: () {},
+                            onPressed: () async {
+                              LatLng currentCoords = await getCurrentLocation();
+                              LatLng hospitalCoords =
+                                  await getNearestHospital(currentCoords);
+                              Uri route = getRouteURLToCoordinates(
+                                  currentCoords, hospitalCoords);
+                              launchUrl(route);
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                const Icon(Icons.monitor_heart, size: 20),
+                                const Icon(Icons.local_hospital, size: 20),
                                 const SizedBox(width: 4),
                                 Text(
                                   "hospital",
@@ -604,7 +677,7 @@ class _MainScreenState extends State<MainScreen> {
                               );
                             },
                           ),
-                          children: _getFabElements(),
+                          children: getFabElements(),
                         ),
                       )
                     : Container(),
@@ -642,20 +715,56 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 10.0),
-                              Center(
-                                child: Text(
-                                  "EMERGENCY",
-                                  style: GoogleFonts.jetBrainsMono(
-                                    textStyle: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: !emergencyMode
-                                          ? const Color(0x7F000000)
-                                          : const Color(0xFFFFFFFF),
-                                      fontSize: 32,
+                              !emergencyMode
+                                  ? const SizedBox(height: 10.0)
+                                  : const SizedBox(height: 80.0),
+                              Column(
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      "EMERGENCY",
+                                      style: GoogleFonts.jetBrainsMono(
+                                        textStyle: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          color: !emergencyMode
+                                              ? const Color(0x7F000000)
+                                              : const Color(0xFFFFFFFF),
+                                          fontSize: 32,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  emergencyMode
+                                      ? Center(
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            "Calling the nearest police station in...",
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  GoogleFonts.jetBrainsMono()
+                                                      .fontFamily,
+                                              fontSize: 24,
+                                              color: const Color(0x7F000000),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                  emergencyMode
+                                      ? Center(
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            "$emergencySeconds",
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  GoogleFonts.jetBrainsMono()
+                                                      .fontFamily,
+                                              fontSize: 128,
+                                              color: const Color(0xFFFFFFFF),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             ],
                           ),
