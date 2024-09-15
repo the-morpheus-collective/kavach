@@ -42,7 +42,13 @@ class _MyMapState extends State<MyMap> {
     super.initState();
   }
 
+  var isLoading = false;
+
   _loadData() async {
+    if (isLoading) {
+      return;
+    }
+    isLoading = true;
     final supabaseClient = Supabase.instance.client;
     if (widget.filters.isEmpty) {
       data = [];
@@ -64,8 +70,8 @@ class _MyMapState extends State<MyMap> {
         ),
       );
     }
-
     data = tdata;
+    isLoading = false;
   }
 
   @override
@@ -124,94 +130,100 @@ class _MyMapState extends State<MyMap> {
       );
     }
 
-    return FutureBuilder<dynamic>(
-        future: _loadData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return LoadingAnimationWidget.beat(
-              color: Colors.black,
-              size: 40,
-            );
-          }
-          return FlutterMap(
-            mapController: _controller,
-            options: MapOptions(
-                initialCenter: initialLocation,
-                initialZoom: 14.0,
-                maxZoom: 22,
-                backgroundColor: Theme.of(context).canvasColor),
-            children: [
-              VectorTileLayer(
-                tileProviders: _style!.providers,
-                theme: _style!.theme,
-                sprites: _style!.sprites,
-                maximumZoom: 22,
-                tileOffset: TileOffset.mapbox,
-                layerMode: VectorTileLayerMode.vector,
-              ),
-              CurrentLocationLayer(),
-              widget.selectedLocation != null
-                  ? MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: LatLng(
-                            widget.selectedLocation?.lat ?? 0.0,
-                            widget.selectedLocation?.lon ?? 0.0,
-                          ),
-                          width: 21,
-                          height: 21,
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 21,
-                                height: 21,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(100),
-                                  boxShadow: const <BoxShadow>[
-                                    BoxShadow(
-                                      spreadRadius: 0.0,
-                                      blurRadius: 4.0,
+    return !isLoading
+        ? FutureBuilder<dynamic>(
+            future: !isLoading ? _loadData() : null,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return LoadingAnimationWidget.beat(
+                  color: Colors.black,
+                  size: 40,
+                );
+              }
+              return FlutterMap(
+                mapController: _controller,
+                options: MapOptions(
+                    initialCenter: initialLocation,
+                    initialZoom: 14.0,
+                    maxZoom: 22,
+                    backgroundColor: Theme.of(context).canvasColor),
+                children: [
+                  !isLoading
+                      ? VectorTileLayer(
+                          tileProviders: _style!.providers,
+                          theme: _style!.theme,
+                          sprites: _style!.sprites,
+                          maximumZoom: 22,
+                          tileOffset: TileOffset.mapbox,
+                          layerMode: VectorTileLayerMode.vector,
+                        )
+                      : Container(),
+                  CurrentLocationLayer(),
+                  widget.selectedLocation != null
+                      ? MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: LatLng(
+                                widget.selectedLocation?.lat ?? 0.0,
+                                widget.selectedLocation?.lon ?? 0.0,
+                              ),
+                              width: 21,
+                              height: 21,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 21,
+                                    height: 21,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(100),
+                                      boxShadow: const <BoxShadow>[
+                                        BoxShadow(
+                                          spreadRadius: 0.0,
+                                          blurRadius: 4.0,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Center(
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(100),
                                   ),
-                                ),
+                                  Center(
+                                    child: Container(
+                                      width: 16,
+                                      height: 16,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  : const SizedBox(),
-              data.isNotEmpty
-                  ? HeatMapLayer(
-                      heatMapDataSource: InMemoryHeatMapDataSource(data: data),
-                      heatMapOptions:
-                          HeatMapOptions(gradient: gradient, minOpacity: 0.2),
-                      // reset: _rebuildStream.stream,
-                    )
-                  : Container(),
-              // RichAttributionWidget(
-              //   // Include a stylish prebuilt attribution widget that meets all requirments
-              //   attributions: [
-              //     TextSourceAttribution(
-              //       'OpenStreetMap contributors',
-              //       onTap: () => {}, // (external)
-              //     ),
-              //     // Also add images...
-              //   ],
-              // ),
-            ],
-          );
-        });
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                  data.isNotEmpty
+                      ? HeatMapLayer(
+                          heatMapDataSource:
+                              InMemoryHeatMapDataSource(data: data),
+                          heatMapOptions: HeatMapOptions(
+                              gradient: gradient, minOpacity: 0.2),
+                          // reset: _rebuildStream.stream,
+                        )
+                      : Container(),
+                  // RichAttributionWidget(
+                  //   // Include a stylish prebuilt attribution widget that meets all requirments
+                  //   attributions: [
+                  //     TextSourceAttribution(
+                  //       'OpenStreetMap contributors',
+                  //       onTap: () => {}, // (external)
+                  //     ),
+                  //     // Also add images...
+                  //   ],
+                  // ),
+                ],
+              );
+            })
+        : Container();
   }
 }

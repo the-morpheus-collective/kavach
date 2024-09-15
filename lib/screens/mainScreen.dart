@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     if (sheetController.size >= 0.9) {
       if (!emergencyMode) {
         setState(() {
+          emergencyTimer();
           emergencyMode = true;
         });
       }
@@ -72,6 +74,27 @@ class _MainScreenState extends State<MainScreen> {
   final snackBar = const SnackBar(
     content: Text('Report Submitted!'),
   );
+
+  var emergencySeconds = 5;
+  Timer _timer = Timer(Duration.zero, () {});
+
+  void emergencyTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (emergencySeconds == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            emergencySeconds--;
+          });
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -692,20 +715,56 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 10.0),
-                              Center(
-                                child: Text(
-                                  "EMERGENCY",
-                                  style: GoogleFonts.jetBrainsMono(
-                                    textStyle: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: !emergencyMode
-                                          ? const Color(0x7F000000)
-                                          : const Color(0xFFFFFFFF),
-                                      fontSize: 32,
+                              !emergencyMode
+                                  ? const SizedBox(height: 10.0)
+                                  : const SizedBox(height: 80.0),
+                              Column(
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      "EMERGENCY",
+                                      style: GoogleFonts.jetBrainsMono(
+                                        textStyle: TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                          color: !emergencyMode
+                                              ? const Color(0x7F000000)
+                                              : const Color(0xFFFFFFFF),
+                                          fontSize: 32,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  emergencyMode
+                                      ? Center(
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            "Calling the nearest police station in...",
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  GoogleFonts.jetBrainsMono()
+                                                      .fontFamily,
+                                              fontSize: 24,
+                                              color: const Color(0x7F000000),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                  emergencyMode
+                                      ? Center(
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            "$emergencySeconds",
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  GoogleFonts.jetBrainsMono()
+                                                      .fontFamily,
+                                              fontSize: 128,
+                                              color: const Color(0xFFFFFFFF),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             ],
                           ),
