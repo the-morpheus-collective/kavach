@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,20 +7,7 @@ import 'package:kavach/components/main_component.dart';
 import 'package:kavach/components/my_map.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
 import 'package:keyboard_detection/keyboard_detection.dart';
-
-class FabData {
-  final AssetImage image;
-  final String text;
-  final Color color;
-  final void Function() onPressed;
-
-  FabData({
-    required this.image,
-    required this.text,
-    required this.color,
-    required this.onPressed,
-  });
-}
+import 'package:http/http.dart' as http;
 
 final List<FabData> fabData = [
   FabData(
@@ -71,43 +60,9 @@ final List<FabData> fabData = [
   ),
 ];
 
-enum TypeFilter {
-  other,
-  children,
-  street,
-  natural,
-  volatile,
-  harassment,
-  theft,
-  physical
-}
-
 final Map<TypeFilter, FabData> fabMap = {
   for (var data in fabData) getTypeFilter(data.text): data,
 };
-
-TypeFilter getTypeFilter(String text) {
-  switch (text) {
-    case "Other":
-      return TypeFilter.other;
-    case "Children in Danger":
-      return TypeFilter.children;
-    case "Street Harassment":
-      return TypeFilter.street;
-    case "Natural Disasters":
-      return TypeFilter.natural;
-    case "Volatile Groups":
-      return TypeFilter.volatile;
-    case "Sexual Harassment":
-      return TypeFilter.harassment;
-    case "Theft/Pickpocketing":
-      return TypeFilter.theft;
-    case "Physical Conflict":
-      return TypeFilter.physical;
-    default:
-      throw Exception("Invalid text: $text");
-  }
-}
 
 List<Widget> _getFabElements() {
   var widgetList = <Widget>[];
@@ -211,6 +166,10 @@ class _MainScreenState extends State<MainScreen> {
 
   final double _sheetPosition = 0.13;
 
+  String? _searchingWithQuery;
+  LocData? _selectedLocation;
+  late Iterable<LocData> _lastOptions = <LocData>[];
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -233,8 +192,11 @@ class _MainScreenState extends State<MainScreen> {
           body: Center(
             child: Stack(
               children: <Widget>[
-                const Center(
-                  child: MyMap(),
+                Center(
+                  child: MyMap(
+                    selectedLocation: _selectedLocation,
+                    filters: filters,
+                  ),
                 ),
                 Container(
                   height: 100,
@@ -253,44 +215,137 @@ class _MainScreenState extends State<MainScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                   child: Column(
                     children: [
-                      TextFormField(
-                          // controller: _controller,
-                          decoration: InputDecoration(
-                            hintText: 'Where do you want to go',
-                            hintStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide: const BorderSide(
-                                color: Colors.black,
-                                width: 2.0,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                              borderSide: const BorderSide(
-                                color: Colors.black,
-                                width: 2.0,
-                              ),
-                            ),
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: GestureDetector(
-                                onTap: () {},
-                                child: const Icon(
-                                  Icons.search,
-                                  color: Color(0xFF242829),
-                                  size: 40.0,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Autocomplete<LocData>(
+                            optionsBuilder:
+                                (TextEditingValue textEditingValue) async {
+                              _searchingWithQuery = textEditingValue.text;
+                              final Iterable<LocData> options =
+                                  await _NominatimAPI.search(
+                                      _searchingWithQuery!);
+
+                              // If another search happened after this one, throw away these options.
+                              // Use the previous options instead and wait for the newer request to
+                              // finish.
+                              if (_searchingWithQuery !=
+                                  textEditingValue.text) {
+                                return _lastOptions;
+                              }
+
+                              _lastOptions = options;
+                              return options;
+                            },
+                            onSelected: (LocData selection) {
+                              setState(() {
+                                _selectedLocation = selection;
+                                _searchingWithQuery = selection.miniName;
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                            optionsViewBuilder: (context, onSelected, options) {
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: SizedBox(
+                                  width: constraints.biggest.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        0.0, 5.0, 0.0, 0.0),
+                                    child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: options.length,
+                                        itemBuilder: (context, index) {
+                                          final option =
+                                              options.elementAt(index);
+                                          return Column(
+                                            children: [
+                                              GestureDetector(
+                                                child: Container(
+                                                  width:
+                                                      constraints.biggest.width,
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0),
+                                                    border: const Border
+                                                        .fromBorderSide(
+                                                      BorderSide(
+                                                        color: Colors.black,
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    color: Colors.white,
+                                                  ),
+                                                  child: Text(
+                                                    option.displayName,
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                onTap: () {
+                                                  onSelected(option);
+                                                },
+                                              ),
+                                              const SizedBox(height: 5.0),
+                                            ],
+                                          );
+                                        }),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          keyboardType: TextInputType.text,
-                          onTap: () {}),
+                              );
+                            },
+                            fieldViewBuilder:
+                                (context, controller, node, onFieldSubmitted) {
+                              return TextFormField(
+                                  controller: controller,
+                                  focusNode: node,
+                                  onFieldSubmitted: (value) {
+                                    onFieldSubmitted();
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Where do you want to go',
+                                    hintStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.black,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.black,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.fromLTRB(
+                                        20.0, 5.0, 20.0, 5.0),
+                                    suffixIcon: Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: const Icon(
+                                          Icons.search,
+                                          color: Color(0xFF242829),
+                                          size: 40.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                  onTap: () {});
+                            },
+                          );
+                        },
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -594,5 +649,40 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+}
+
+class _NominatimAPI {
+  // Searches the options, but injects a fake "network" delay.
+  static Future<Iterable<LocData>> search(String query) async {
+    if (query == '') {
+      return const Iterable<LocData>.empty();
+    }
+    http.Response res = await http.get(
+      Uri.parse(
+          "https://nominatim.openstreetmap.org/search?q=$query&limit=5&format=json"),
+    );
+    if (res.statusCode != 200) {
+      debugPrint("NON 200 CODE {$res.statusCode}");
+      return const Iterable<LocData>.empty();
+    }
+    return _constructFromAPIResponse(res);
+  }
+
+  static Iterable<LocData> _constructFromAPIResponse(http.Response res) {
+    debugPrint("Constructing");
+    var parsedResponse = jsonDecode(res.body);
+    // debugPrint(parsedResponse.toString());
+
+    return (parsedResponse)
+        .map<LocData>((dynamic e) => LocData(
+              lat: double.parse(e['lat']),
+              lon: double.parse(e['lon']),
+              boundingBox:
+                  e['boundingbox'].map<double>((e) => double.parse(e)).toList(),
+              displayName: e['display_name'] as String,
+              miniName: e['name'] as String,
+            ))
+        .toList();
   }
 }

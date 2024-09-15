@@ -25,8 +25,6 @@ Container make_contact_widget(String name, int phone_number) {
   );
 }
 
-
-
 class VishnuScreen extends StatefulWidget {
   const VishnuScreen({super.key});
 
@@ -219,12 +217,12 @@ class _VishnuState extends State<VishnuScreen> {
     );
   }
 
-void _update_contact_widgets() {
-    setState( () { 
+  void _update_contact_widgets() {
+    setState(() {
       const half_space = const SizedBox(
-      width: 8,
-      height: 8,
-    );
+        width: 8,
+        height: 8,
+      );
       _contact_widgets.addAll(
         <Widget>[
           make_contact_widget("Pranjal Rastogi", 9910708969),
@@ -232,5 +230,5 @@ void _update_contact_widgets() {
         ],
       );
     });
-}
+  }
 }

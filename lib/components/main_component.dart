@@ -4,6 +4,75 @@ import 'package:kavach/screens/vishnuScreen.dart';
 import 'package:kavach/screens/reportsScreen.dart';
 import 'package:kavach/screens/profileScreen.dart';
 
+class LocData {
+  final double lat;
+  final double lon;
+  final List<double> boundingBox;
+  final String displayName;
+  final String miniName;
+
+  LocData({
+    required this.lat,
+    required this.lon,
+    required this.boundingBox,
+    required this.displayName,
+    required this.miniName,
+  });
+
+  @override
+  String toString() {
+    return miniName;
+  }
+}
+
+enum TypeFilter {
+  other,
+  children,
+  street,
+  natural,
+  volatile,
+  harassment,
+  theft,
+  physical
+}
+
+TypeFilter getTypeFilter(String text) {
+  switch (text) {
+    case "Other":
+      return TypeFilter.other;
+    case "Children in Danger":
+      return TypeFilter.children;
+    case "Street Harassment":
+      return TypeFilter.street;
+    case "Natural Disasters":
+      return TypeFilter.natural;
+    case "Volatile Groups":
+      return TypeFilter.volatile;
+    case "Sexual Harassment":
+      return TypeFilter.harassment;
+    case "Theft/Pickpocketing":
+      return TypeFilter.theft;
+    case "Physical Conflict":
+      return TypeFilter.physical;
+    default:
+      throw Exception("Invalid text: $text");
+  }
+}
+
+class FabData {
+  final AssetImage image;
+  final String text;
+  final Color color;
+  final void Function() onPressed;
+
+  FabData({
+    required this.image,
+    required this.text,
+    required this.color,
+    required this.onPressed,
+  });
+}
+
 class OptionData {
   final IconData image;
   final String text;

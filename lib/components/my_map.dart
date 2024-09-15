@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:kavach/components/main_component.dart';
+import 'package:kavach/screens/mainScreen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:vector_map_tiles/vector_map_tiles.dart';
@@ -10,7 +13,10 @@ import 'package:vector_tile_renderer/vector_tile_renderer.dart' hide Theme;
 import 'package:kavach/secrets.dart' as s;
 
 class MyMap extends StatefulWidget {
-  const MyMap({super.key});
+  final Set<TypeFilter> filters;
+  final LocData? selectedLocation;
+
+  const MyMap({super.key, this.selectedLocation, required this.filters});
 
   @override
   State<MyMap> createState() => _MyMapState();
@@ -22,10 +28,15 @@ class _MyMapState extends State<MyMap> {
 
   List<WeightedLatLng> data = [];
 
+  LatLng initialLocation = const LatLng(0.0, 0.0);
+
   @override
   void initState() {
     // _loadData();
     _initStyle();
+    _getCurrentLocation().then((value) {
+      initialLocation = value;
+    });
     super.initState();
   }
 
@@ -52,6 +63,11 @@ class _MyMapState extends State<MyMap> {
     }
   }
 
+  Future<LatLng> _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition();
+    return LatLng(position.latitude, position.longitude);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_style == null) {
@@ -61,13 +77,20 @@ class _MyMapState extends State<MyMap> {
       );
     }
 
+    if (widget.selectedLocation != null) {
+      _controller.move(
+        LatLng(
+          widget.selectedLocation!.lat,
+          widget.selectedLocation!.lon,
+        ),
+        15.0,
+      );
+    }
+
     return FlutterMap(
       mapController: _controller,
       options: MapOptions(
-          initialCenter: const LatLng(
-            30.76894444,
-            76.57519444,
-          ),
+          initialCenter: initialLocation,
           initialZoom: 15.0,
           maxZoom: 22,
           backgroundColor: Theme.of(context).canvasColor),
@@ -81,6 +104,48 @@ class _MyMapState extends State<MyMap> {
           layerMode: VectorTileLayerMode.vector,
         ),
         CurrentLocationLayer(),
+        widget.selectedLocation != null
+            ? MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(
+                      widget.selectedLocation?.lat ?? 0.0,
+                      widget.selectedLocation?.lon ?? 0.0,
+                    ),
+                    width: 21,
+                    height: 21,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 21,
+                          height: 21,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(100),
+                            boxShadow: const <BoxShadow>[
+                              BoxShadow(
+                                spreadRadius: 0.0,
+                                blurRadius: 4.0,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Center(
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : const SizedBox(),
         // HeatMapLayer(
         //   heatMapDataSource: InMemoryHeatMapDataSource(data: data),
         //   heatMapOptions: HeatMapOptions(gradient: gradient, minOpacity: 0.2),
