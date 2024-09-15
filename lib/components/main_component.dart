@@ -130,10 +130,6 @@ Future<String?> getUserName() async {
   return response[0]['username'] as String;
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> feat/profilePage
 final Widget myDrawer = Drawer(
   shape: const RoundedRectangleBorder(/* border radius = 0 */),
   backgroundColor: const Color(0xFFFFFFFF),
@@ -145,33 +141,22 @@ final Widget myDrawer = Drawer(
           height: 70,
         ),
         Center(
-          child: FutureBuilder<String?>(
-            future: getUserName(),
-            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-              return RichText(
-                text: TextSpan(
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                color: Color(0xFF000000),
+                fontSize: 20,
+              ),
+              children: <TextSpan>[
+                const TextSpan(text: "Hey, "),
+                TextSpan(
                   style: const TextStyle(
-                    color: Color(0xFF000000),
-                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
                   ),
-                  children: <TextSpan>[
-                    const TextSpan(text: "Hey, "),
-                    TextSpan(
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                      ),
-                      text: snapshot.data?.split(" ")[0],
-                    )
-                  ],
-                ),
-              );
-            },
+                  text: "Vardhaman",
+                )
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 20),
