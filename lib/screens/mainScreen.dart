@@ -163,226 +163,229 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardDetection(
-      controller: KeyboardDetectionController(
-        onChanged: (value) {
-          // print('Keyboard visibility onChanged: $value');
-          setState(() {
-            keyboardState = value;
-          });
-        },
-      ),
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: const Color(0xffffffff),
-        drawer: myDrawer,
-        appBar: !emergencyMode ? getAppBar(_scaffoldKey) : null,
-        floatingActionButtonLocation: ExpandableFab.location,
-        body: Center(
-          child: Stack(
-            children: <Widget>[
-              const Center(
-                child: MyMap(),
-              ),
-              Container(
-                height: 100,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Color(0x00FFFFFF),
-                    ],
+    return PopScope(
+      canPop: false,
+      child: KeyboardDetection(
+        controller: KeyboardDetectionController(
+          onChanged: (value) {
+            // print('Keyboard visibility onChanged: $value');
+            setState(() {
+              keyboardState = value;
+            });
+          },
+        ),
+        child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: const Color(0xffffffff),
+          drawer: myDrawer,
+          appBar: !emergencyMode ? getAppBar(_scaffoldKey) : null,
+          floatingActionButtonLocation: ExpandableFab.location,
+          body: Center(
+            child: Stack(
+              children: <Widget>[
+                const Center(
+                  child: MyMap(),
+                ),
+                Container(
+                  height: 100,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white,
+                        Color(0x00FFFFFF),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                child: TextFormField(
-                    // controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Where do you want to go',
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 2.0,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: TextFormField(
+                      // controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Where do you want to go',
+                        hintStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 2.0,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                          borderSide: const BorderSide(
+                            color: Colors.black,
+                            width: 2.0,
+                          ),
                         ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: const Icon(
-                            Icons.search,
-                            color: Color(0xFF242829),
-                            size: 40.0,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                          borderSide: const BorderSide(
+                            color: Colors.black,
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Icon(
+                              Icons.search,
+                              color: Color(0xFF242829),
+                              size: 40.0,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    keyboardType: TextInputType.text,
-                    onTap: () {}),
-              ),
-              !(keyboardState == KeyboardState.visible ||
-                      keyboardState == KeyboardState.visibling ||
-                      keyboardState == KeyboardState.hiding)
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0.0, 90.0),
-                      child: ExpandableFab(
-                        pos: ExpandableFabPos.right,
-                        overlayStyle: ExpandableFabOverlayStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          blur: 0.2,
-                          // borderRadius: BorderRadius.circular(100),
-                        ),
-                        type: ExpandableFabType.up,
-                        distance: 60,
-                        openButtonBuilder: FloatingActionButtonBuilder(
-                          size: 170,
-                          builder: (BuildContext context,
-                              void Function()? onPressed,
-                              Animation<double> progress) {
-                            return Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                width: 110,
-                                decoration: const BoxDecoration(
-                                  color: Color(
-                                    0xFF242829,
+                      keyboardType: TextInputType.text,
+                      onTap: () {}),
+                ),
+                !(keyboardState == KeyboardState.visible ||
+                        keyboardState == KeyboardState.visibling ||
+                        keyboardState == KeyboardState.hiding)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0.0, 90.0),
+                        child: ExpandableFab(
+                          pos: ExpandableFabPos.right,
+                          overlayStyle: ExpandableFabOverlayStyle(
+                            color: Colors.black.withOpacity(0.5),
+                            blur: 0.2,
+                            // borderRadius: BorderRadius.circular(100),
+                          ),
+                          type: ExpandableFabType.up,
+                          distance: 60,
+                          openButtonBuilder: FloatingActionButtonBuilder(
+                            size: 170,
+                            builder: (BuildContext context,
+                                void Function()? onPressed,
+                                Animation<double> progress) {
+                              return Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  width: 110,
+                                  decoration: const BoxDecoration(
+                                    color: Color(
+                                      0xFF242829,
+                                    ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(100)),
                                   ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(100)),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Icon(
-                                        Icons.report,
-                                        color: Colors.white,
-                                        size: 30.0,
-                                      ),
-                                      Text(
-                                        "Report",
-                                        style: TextStyle(
+                                  child: const Padding(
+                                    padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Icon(
+                                          Icons.report,
                                           color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                          size: 30.0,
                                         ),
-                                      ),
-                                    ],
+                                        Text(
+                                          "Report",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
+                          closeButtonBuilder: FloatingActionButtonBuilder(
+                            size: 170,
+                            builder: (BuildContext context,
+                                void Function()? onPressed,
+                                Animation<double> progress) {
+                              return Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  width: 46,
+                                  decoration: const BoxDecoration(
+                                    color: Color(
+                                      0xFF242829,
+                                    ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(100)),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Color(0xFFFF6666),
+                                      size: 30.0,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          children: _getFabElements(),
                         ),
-                        closeButtonBuilder: FloatingActionButtonBuilder(
-                          size: 170,
-                          builder: (BuildContext context,
-                              void Function()? onPressed,
-                              Animation<double> progress) {
-                            return Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                width: 46,
-                                decoration: const BoxDecoration(
-                                  color: Color(
-                                    0xFF242829,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(100)),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                  child: Icon(
-                                    Icons.close,
-                                    color: Color(0xFFFF6666),
-                                    size: 30.0,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        children: _getFabElements(),
-                      ),
-                    )
-                  : Container(),
-              DraggableScrollableSheet(
-                controller: sheetController,
-                initialChildSize: _sheetPosition,
-                minChildSize: _sheetPosition,
-                maxChildSize: 1,
-                snap: true,
-                snapSizes: const [1.0],
-                builder:
-                    (BuildContext context, ScrollController scrollController) {
-                  return Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFF6666),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: Container(
-                                width: 80,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: const Color(0x1E000000),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10.0),
-                            Center(
-                              child: Text(
-                                "EMERGENCY",
-                                style: GoogleFonts.jetBrainsMono(
-                                  textStyle: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    color: !emergencyMode
-                                        ? const Color(0x7F000000)
-                                        : const Color(0xFFFFFFFF),
-                                    fontSize: 32,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      )
+                    : Container(),
+                DraggableScrollableSheet(
+                  controller: sheetController,
+                  initialChildSize: _sheetPosition,
+                  minChildSize: _sheetPosition,
+                  maxChildSize: 1,
+                  snap: true,
+                  snapSizes: const [1.0],
+                  builder: (BuildContext context,
+                      ScrollController scrollController) {
+                    return Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF6666),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Container(
+                                  width: 80,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: const Color(0x1E000000),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                              Center(
+                                child: Text(
+                                  "EMERGENCY",
+                                  style: GoogleFonts.jetBrainsMono(
+                                    textStyle: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: !emergencyMode
+                                          ? const Color(0x7F000000)
+                                          : const Color(0xFFFFFFFF),
+                                      fontSize: 32,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
