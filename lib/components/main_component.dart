@@ -62,6 +62,30 @@ TypeFilter getTypeFilter(String text) {
   }
 }
 
+// make reverse getTypeFilter
+String getTextFromTypeFilter(TypeFilter filter) {
+  switch (filter) {
+    case TypeFilter.other:
+      return "Other";
+    case TypeFilter.children:
+      return "Children in Danger";
+    case TypeFilter.street:
+      return "Street Harassment";
+    case TypeFilter.natural:
+      return "Natural Disasters";
+    case TypeFilter.volatile:
+      return "Volatile Groups";
+    case TypeFilter.harassment:
+      return "Sexual Harassment";
+    case TypeFilter.theft:
+      return "Theft/Pickpocketing";
+    case TypeFilter.physical:
+      return "Physical Conflict";
+    default:
+      throw Exception("Invalid filter: $filter");
+  }
+}
+
 class FabData {
   final AssetImage image;
   final String text;

@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:kavach/screens/mainScreen.dart';
 
-final List<String> events = fabData.map((event) => event.text).toList();
+final List<String> events = [
+  "Other",
+  "Children in Danger",
+  "Street Harassment",
+  "Natural Disasters",
+  "Volatile Groups",
+  "Sexual Harassment",
+  "Theft/Pickpocketing",
+  "Physical Conflict"
+];
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -14,9 +23,8 @@ class ReportsScreen extends StatefulWidget {
 class _ReportsState extends State<ReportsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<DropdownMenuItem<String>> simplified_events = events.map((String value) {
-                return DropdownMenuItem<String>(
-                    value: value, child: Text(value));
-              }).toList();
+    return DropdownMenuItem<String>(value: value, child: Text(value));
+  }).toList();
   List<Widget> _report_widgets = [];
   String dropdownValue = events.first;
   bool chosen = false;
@@ -73,25 +81,25 @@ class _ReportsState extends State<ReportsScreen> {
           DropdownButton incident_type = DropdownButton(
               items: simplified_events,
               isExpanded: true,
-              hint: Text("  "+dropdownValue),
+              hint: Text("  " + dropdownValue),
               onChanged: (newValue) {
-                        setState(() {
-                        dropdownValue = newValue;
-                        chosen = true;
-                        });
-                    });
-              
+                setState(() {
+                  dropdownValue = newValue;
+                  chosen = true;
+                });
+              });
+
           Container dropdown_wrapper = Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.black, width: 2),
-                right: BorderSide(color: Colors.black, width: 2),
-                bottom: BorderSide(color: Colors.black, width: 2),
-                left: BorderSide(color: Colors.black, width: 2),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                  right: BorderSide(color: Colors.black, width: 2),
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: DropdownButtonHideUnderline(child: incident_type));
+              child: DropdownButtonHideUnderline(child: incident_type));
 
           return SizedBox(
               height: 480,
