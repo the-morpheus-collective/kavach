@@ -6,8 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:kavach/components/my_map.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
+import 'package:kavach/utils/map.dart';
 import 'package:keyboard_detection/keyboard_detection.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 
 final List<FabData> fabData = [
   FabData(
@@ -391,7 +393,26 @@ class _MainScreenState extends State<MainScreen> {
                               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
                               minimumSize: const Size(0, 0),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              LatLng currentCoords =
+                                  const LatLng(30.76856, 76.575366);
+                              getCurrentLocation().then((value) {
+                                currentCoords = value;
+                              });
+
+                              LatLng PoPoCoords =
+                                  const LatLng(30.76856, 76.575366);
+
+                              getNearestPoliceStation(currentCoords)
+                                  .then((value) {
+                                PoPoCoords = value;
+                              });
+
+                              Uri route =
+                                  getRouteURLToCoordinates(currentCoords);
+
+                              // open Uri link in browser
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
