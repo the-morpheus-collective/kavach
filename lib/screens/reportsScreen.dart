@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kavach/components/main_component.dart';
-import 'package:kavach/screens/mainScreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'dart:ui';
 
 final List<String> events = [
   "Other",
@@ -25,9 +28,12 @@ class _ReportsState extends State<ReportsScreen> {
   List<DropdownMenuItem<String>> simplified_events = events.map((String value) {
     return DropdownMenuItem<String>(value: value, child: Text(value));
   }).toList();
+  final supabaseClient = Supabase.instance.client;
+  final _storage = const FlutterSecureStorage();
   List<Widget> _report_widgets = [];
   String dropdownValue = events.first;
   bool chosen = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +67,6 @@ class _ReportsState extends State<ReportsScreen> {
             borderSide: BorderSide(color: Colors.black, width: 2.0),
           );
 
-          const report_location = const TextField(
-            decoration: InputDecoration(
-              labelText: "Report location",
-              enabledBorder: border_styling,
-              focusedBorder: border_styling,
-            ),
-          );
           const additional_details = const TextField(
             decoration: InputDecoration(
               labelText: "Additional Details",
@@ -91,7 +90,7 @@ class _ReportsState extends State<ReportsScreen> {
 
           Container dropdown_wrapper = Container(
               decoration: BoxDecoration(
-                border: Border(
+                border: const Border(
                   top: BorderSide(color: Colors.black, width: 2),
                   right: BorderSide(color: Colors.black, width: 2),
                   bottom: BorderSide(color: Colors.black, width: 2),
@@ -111,11 +110,9 @@ class _ReportsState extends State<ReportsScreen> {
                         child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text('Editing Report',
+                        const Text('Editing Report',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 32)),
-                        space,
-                        report_location,
                         space,
                         additional_details,
                         space,
@@ -132,7 +129,7 @@ class _ReportsState extends State<ReportsScreen> {
           onTap: editReport,
           child: Container(
             decoration: BoxDecoration(
-              border: Border(
+              border: const Border(
                 top: BorderSide(color: Colors.black, width: 2),
                 right: BorderSide(color: Colors.black, width: 2),
                 bottom: BorderSide(color: Colors.black, width: 2),
@@ -166,29 +163,94 @@ class _ReportsState extends State<ReportsScreen> {
       style: TextStyle(fontSize: 16),
     );
 
-    void _update_report_widgets() {
+    Future<String?> getPhoneNumber() async {
+      final user = await _storage.read(key: 'user_id');
+      print("Phone No: $user");
+      return user;
+    }
+
+    Future<String> _getUserId() async {
+      print("DEBUG: Getting journey id");
+      var phoneNumber = await getPhoneNumber();
+      print("DEBUG: Gettong db!");
+      final user = await supabaseClient
+          .from('users')
+          .select()
+          .eq('phone_number', phoneNumber as Object);
+
+      print("DEBUG: User" + user[0]['user_id']);
+      return user[0]['user_id'] as String;
+    }
+
+    void getReports() {
+      // setState(() {
+      //   const half_space = const SizedBox(
+      //     width: 8,
+      //     height: 8,
+      //   );
+      //   _report_widgets.addAll(
+      //     <Widget>[make_report_widget("India Gate", "02-09-2024"), half_space],
+      //   );
+      // });
+
       setState(() {
-        const half_space = const SizedBox(
-          width: 8,
-          height: 8,
-        );
-        _report_widgets.addAll(
-          <Widget>[make_report_widget("India Gate", "02-09-2024"), half_space],
-        );
+        _isLoading = true;
+      });
+
+      _getUserId().then((value) {
+        print(value);
+        supabaseClient
+            .from('incidents')
+            .select()
+            .eq('user_id', value)
+            .then((response) {
+          print(response);
+          if (response.length == 0) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Error'),
+                  content: const Text('No reports found'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+          for (var i = 0; i < response.length; i++) {
+            setState(() {
+              _report_widgets.addAll([
+                make_report_widget(
+                    response[i]['created_at'], response[i]['description'])
+              ]);
+            });
+          }
+        });
+      });
+
+      setState(() {
+        _isLoading = false;
       });
     }
 
     SizedBox add_report_button = SizedBox(
       width: double.infinity,
       child: OutlinedButton(
-          onPressed: _update_report_widgets,
+          onPressed: getReports,
           style: OutlinedButton.styleFrom(
               backgroundColor: green,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0)),
               side: BorderSide(width: 2.0, color: Colors.black)),
           child: const Row(children: <Widget>[
-            const Text('Add a report',
+            const Text('Fetch my reports',
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   color: Colors.black,
@@ -201,7 +263,7 @@ class _ReportsState extends State<ReportsScreen> {
 
     if (_report_widgets.length < 1) _report_widgets.add(add_report_button);
     Container all_reports = Container(
-      height: 320,
+      height: 256,
       child: ListView.builder(
         itemCount: _report_widgets.length,
         itemBuilder: (BuildContext context, int index) {
@@ -210,23 +272,36 @@ class _ReportsState extends State<ReportsScreen> {
       ),
     );
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: myDrawer,
-      appBar: getAppBar(_scaffoldKey),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            hero_icon,
-            heading_text,
-            subtitle_text,
-            space,
-            all_reports,
-          ],
+    return Stack(children: [
+      Scaffold(
+        resizeToAvoidBottomInset: false,
+        key: _scaffoldKey,
+        drawer: myDrawer,
+        appBar: getAppBar(_scaffoldKey),
+        body: Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              hero_icon,
+              heading_text,
+              subtitle_text,
+              space,
+              all_reports,
+            ],
+          ),
         ),
       ),
-    );
+      if (_isLoading)
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: LoadingAnimationWidget.beat(color: Colors.white, size: 50),
+            ),
+          ),
+        ),
+    ]);
   }
 }
