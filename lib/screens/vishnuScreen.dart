@@ -322,7 +322,7 @@ class _VishnuState extends State<VishnuScreen> {
 
         var journeyId = await _getJourneyId();
         Share.share(
-            'You can track my commute here: http://localhost:3000/$journeyId',
+            'You can track my commute here: http://kavach.thepjr.com/$journeyId',
             subject: 'Track Me!');
       },
       child: Container(

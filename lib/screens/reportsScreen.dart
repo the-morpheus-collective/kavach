@@ -207,25 +207,29 @@ class _ReportsState extends State<ReportsScreen> {
                 ),
             ],
           );
-          return SizedBox(
-            height: 400 + MediaQuery.of(context).viewInsets.bottom,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                  20.0, 0.0, 20.0, MediaQuery.of(context).viewInsets.bottom),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text('Editing Report',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 32)),
-                    space,
-                    additional_details,
-                    space,
-                    submit,
-                    space,
-                  ],
+          return OverflowBox(
+            child: SizedBox(
+              height: 400 + MediaQuery.of(context).viewInsets.bottom,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                    20.0, 0.0, 20.0, MediaQuery.of(context).viewInsets.bottom),
+                child: Center(
+                  child: OverflowBox(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text('Editing Report',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 32)),
+                        space,
+                        additional_details,
+                        space,
+                        submit,
+                        space,
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
