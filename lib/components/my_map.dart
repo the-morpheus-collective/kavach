@@ -420,17 +420,33 @@ class _MyMapState extends State<MyMap> {
                                         context: context,
                                         builder: (BuildContext context) =>
                                             AlertDialog(
-                                          title:
-                                              const Text('AlertDialog Title'),
-                                          content: const Text(
-                                              'AlertDialog description'),
+                                          iconColor: Colors.white,
+                                          backgroundColor: Colors.black,
+                                          title: const Text(
+                                            'Stay Safe!',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          content: Text(
+                                            getSafetyContent(popUpTitle),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                           actions: <Widget>[
                                             TextButton(
-                                              onPressed: () => Navigator.pop(
-                                                  context, 'Cancel'),
-                                              child: const Text('Cancel'),
-                                            ),
-                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Colors.black,
+                                                backgroundColor: Colors.white,
+                                                enableFeedback: true,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    16.0,
+                                                  ),
+                                                ),
+                                                minimumSize: const Size(0, 0),
+                                              ),
                                               onPressed: () =>
                                                   Navigator.pop(context, 'OK'),
                                               child: const Text('OK'),
