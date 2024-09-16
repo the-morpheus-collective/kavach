@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector_map_tiles/vector_map_tiles.dart';
 import 'package:vector_tile_renderer/vector_tile_renderer.dart' hide Theme;
+import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 
 import 'package:kavach/secrets.dart' as s;
 
@@ -158,7 +159,34 @@ class _MyMapState extends State<MyMap> {
                           layerMode: VectorTileLayerMode.vector,
                         )
                       : Container(),
-                  CurrentLocationLayer(),
+                  StreamBuilder<CompassEvent>(
+                      stream: FlutterCompass.events,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(
+                              'Error reading heading: ${snapshot.error}');
+                        }
+                        if (!snapshot.hasData) {
+                          return const Text('Heading not available');
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        double? direction = snapshot.data!.heading;
+
+                        // if direction is null, then device does not support this sensor
+                        // show error message
+                        if (direction == null) {
+                          return const Center(
+                            child: Text("Device does not have sensors!!"),
+                          );
+                        }
+
+                        return CurrentLocationLayer();
+                      }),
                   widget.selectedLocation != null
                       ? MarkerLayer(
                           markers: [
