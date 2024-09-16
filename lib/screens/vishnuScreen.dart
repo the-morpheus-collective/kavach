@@ -119,25 +119,24 @@ class _VishnuState extends State<VishnuScreen> {
       key: _scaffoldKey,
       drawer: myDrawer,
       appBar: getAppBar(_scaffoldKey),
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              space,
-              heroIcon,
-              vishnuText,
-              subtitleText,
-              space,
-              fromTextInput,
-              space,
-              toTextInput,
-              spacer,
-              shareButtonContainer,
-              space,
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            space,
+            heroIcon,
+            vishnuText,
+            subtitleText,
+            space,
+            fromTextInput,
+            space,
+            toTextInput,
+            spacer,
+            shareButtonContainer,
+            space,
+          ],
         ),
       ),
     );

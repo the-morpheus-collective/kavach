@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:kavach/components/my_map.dart';
@@ -89,6 +90,7 @@ class _MainScreenState extends State<MainScreen> {
           setState(() {
             timer.cancel();
           });
+          FlutterPhoneDirectCaller.callNumber("112");
         } else {
           setState(() {
             emergencySeconds--;

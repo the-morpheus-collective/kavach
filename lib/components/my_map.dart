@@ -112,6 +112,8 @@ class _MyMapState extends State<MyMap> {
     1.0: Colors.purple
   };
 
+  List<Marker> getMarkers() {}
+
   @override
   Widget build(BuildContext context) {
     if (_style == null) {
@@ -145,7 +147,7 @@ class _MyMapState extends State<MyMap> {
                 mapController: _controller,
                 options: MapOptions(
                     initialCenter: initialLocation,
-                    initialZoom: 14.0,
+                    initialZoom: 17.0,
                     maxZoom: 22,
                     backgroundColor: Theme.of(context).canvasColor),
                 children: [
@@ -185,8 +187,15 @@ class _MyMapState extends State<MyMap> {
                           );
                         }
 
+                        if (_controller.camera.zoom > 20) {
+                          return const SizedBox();
+                        }
                         return CurrentLocationLayer();
                       }),
+                  (_controller.camera.zoom > 20)
+                      ? MarkerLayer(markers: getMarkers())
+                      : Container(),
+
                   widget.selectedLocation != null
                       ? MarkerLayer(
                           markers: [
