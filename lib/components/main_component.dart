@@ -39,6 +39,27 @@ enum TypeFilter {
   physical
 }
 
+Color getColor(TypeFilter fitler) {
+  switch (fitler) {
+    case TypeFilter.other:
+      return const Color(0xFFB3B3B3);
+    case TypeFilter.children:
+      return const Color(0xFF7196F4);
+    case TypeFilter.street:
+      return const Color(0xFF7FE3E6);
+    case TypeFilter.natural:
+      return const Color(0xFFE67F80);
+    case TypeFilter.volatile:
+      return const Color(0xFF97E67F);
+    case TypeFilter.harassment:
+      return const Color(0xFFFF66BA);
+    case TypeFilter.theft:
+      return const Color(0xFFA57FE6);
+    case TypeFilter.physical:
+      return const Color(0xFFFFD666);
+  }
+}
+
 TypeFilter getTypeFilter(String text) {
   switch (text) {
     case "Other":

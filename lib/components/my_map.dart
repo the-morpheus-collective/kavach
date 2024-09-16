@@ -109,7 +109,7 @@ class _MyMapState extends State<MyMap> {
                     width: 16,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: getColor(getTypeFilter(e["incident_type"])),
                       borderRadius: BorderRadius.circular(100),
                     ),
                   ),
