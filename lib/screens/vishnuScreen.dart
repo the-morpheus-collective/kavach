@@ -27,12 +27,12 @@ class _VishnuState extends State<VishnuScreen> {
   Future<String> _getJourneyId() async {
     print("DEBUG: Getting journey id");
     var phoneNumber = await getPhoneNumber();
-    final response = await supabaseClient
-        .from('journey')
+    final user = await supabaseClient
+        .from('users')
         .select()
-        .eq('user_id', phoneNumber as Object);
+        .eq('phone_number', phoneNumber as Object);
 
-    return response[0]['journey_id'] as String;
+    return user[0]['user_id'] as String;
   }
 
   @override
@@ -92,8 +92,9 @@ class _VishnuState extends State<VishnuScreen> {
       onTap: () async {
         print("DEBUG: Share button pressed");
 
-        // var journeyId = await _getJourneyId();
-        Share.share('You can track my commute here: http://localhost:3000/',
+        var journeyId = await _getJourneyId();
+        Share.share(
+            'You can track my commute here: http://localhost:3000/$journeyId',
             subject: 'Track Me!');
       },
       child: Container(
@@ -107,6 +108,7 @@ class _VishnuState extends State<VishnuScreen> {
             bottom: BorderSide(color: Colors.black, width: 6.0),
           ),
           borderRadius: BorderRadius.circular(16.0),
+          color: Color(0xFF95F6A7),
         ),
         child: const Icon(Icons.share, size: 28, color: Colors.black),
       ),
@@ -115,6 +117,7 @@ class _VishnuState extends State<VishnuScreen> {
     print("Scafflod key");
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       drawer: myDrawer,
