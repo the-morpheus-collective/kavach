@@ -30,6 +30,9 @@ class _ReportsState extends State<ReportsScreen> {
   }).toList();
   final supabaseClient = Supabase.instance.client;
   final _storage = const FlutterSecureStorage();
+  final TextEditingController _descriptionController = TextEditingController();
+  Object? _userId;
+  bool _fetched = false;
   List<Widget> _report_widgets = [];
   String dropdownValue = events.first;
   bool chosen = false;
@@ -67,8 +70,9 @@ class _ReportsState extends State<ReportsScreen> {
             borderSide: BorderSide(color: Colors.black, width: 2.0),
           );
 
-          const additional_details = const TextField(
-            decoration: InputDecoration(
+          var additional_details = TextField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(
               labelText: "Additional Details",
               enabledBorder: border_styling,
               focusedBorder: border_styling,
@@ -77,35 +81,137 @@ class _ReportsState extends State<ReportsScreen> {
 
           print("isee");
           print(chosen);
-          DropdownButton incident_type = DropdownButton(
-              items: simplified_events,
-              isExpanded: true,
-              hint: Text("  " + dropdownValue),
-              onChanged: (newValue) {
-                setState(() {
-                  dropdownValue = newValue;
-                  chosen = true;
-                });
-              });
 
-          Container dropdown_wrapper = Container(
-              decoration: BoxDecoration(
-                border: const Border(
-                  top: BorderSide(color: Colors.black, width: 2),
-                  right: BorderSide(color: Colors.black, width: 2),
-                  bottom: BorderSide(color: Colors.black, width: 2),
-                  left: BorderSide(color: Colors.black, width: 2),
+          var submit = Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: const Border(
+                    top: BorderSide(
+                      color: Color(0xFF900927),
+                      width: 1.0,
+                    ),
+                    left: BorderSide(
+                      color: Color(0xFF900927),
+                      width: 1.0,
+                    ),
+                    bottom: BorderSide(
+                      color: Color(0xFF900927),
+                      width: 4,
+                    ),
+                    right: BorderSide(
+                      color: Color(0xFF900927),
+                      width: 4,
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: DropdownButtonHideUnderline(child: incident_type));
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      print("Pressed");
+                      try {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        await supabaseClient.from('incidents').update({
+                          'description': _descriptionController.text,
+                        }).eq('user_id', _userId as Object);
 
+                        print("DEBUG: Report updated");
+                        setState(() {
+                          _isLoading = false;
+                        });
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Success'),
+                              content:
+                                  const Text('Report updated successfully'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Error'),
+                              content: const Text('No reports found'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      backgroundColor: const Color(0xFFFF6666),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Add description',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (_isLoading)
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: LoadingAnimationWidget.beat(
+                          color: Colors.white, size: 50),
+                    ),
+                  ),
+                ),
+            ],
+          );
           return SizedBox(
-              height: 480,
+              height: 300,
               child: SizedBox(
                   height: 256,
                   child: Padding(
-                    padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                     child: Center(
                         child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -116,7 +222,8 @@ class _ReportsState extends State<ReportsScreen> {
                         space,
                         additional_details,
                         space,
-                        dropdown_wrapper,
+                        submit,
+                        space,
                       ],
                     )),
                   )));
@@ -124,7 +231,8 @@ class _ReportsState extends State<ReportsScreen> {
       );
     }
 
-    GestureDetector make_report_widget(String location, String date) {
+    GestureDetector make_report_widget(
+        String indcidentType, String discription) {
       return GestureDetector(
           onTap: editReport,
           child: Container(
@@ -142,9 +250,10 @@ class _ReportsState extends State<ReportsScreen> {
                   top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
               child: Row(
                 children: [
-                  Text(location, style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(indcidentType,
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Spacer(),
-                  Text(date),
+                  Text(discription),
                 ],
               ),
             ),
@@ -169,9 +278,10 @@ class _ReportsState extends State<ReportsScreen> {
       return user;
     }
 
-    Future<String> _getUserId() async {
+    Future<Object> _getUserId() async {
       print("DEBUG: Getting journey id");
       var phoneNumber = await getPhoneNumber();
+
       print("DEBUG: Gettong db!");
       final user = await supabaseClient
           .from('users')
@@ -179,7 +289,8 @@ class _ReportsState extends State<ReportsScreen> {
           .eq('phone_number', phoneNumber as Object);
 
       print("DEBUG: User" + user[0]['user_id']);
-      return user[0]['user_id'] as String;
+      _userId ??= user[0]['user_id'] as Object;
+      return user[0]['user_id'] as Object;
     }
 
     void getReports() {
@@ -197,71 +308,97 @@ class _ReportsState extends State<ReportsScreen> {
         _isLoading = true;
       });
 
-      _getUserId().then((value) {
-        print(value);
-        supabaseClient
-            .from('incidents')
-            .select()
-            .eq('user_id', value)
-            .then((response) {
-          print(response);
-          if (response.length == 0) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Error'),
-                  content: const Text('No reports found'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-          for (var i = 0; i < response.length; i++) {
+      if (!_fetched) {
+        _getUserId().then((value) {
+          print(value);
+          supabaseClient
+              .from('incidents')
+              .select()
+              .eq('user_id', value)
+              .then((response) {
+            print(response);
+            if (response.length == 0) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Error'),
+                    content: const Text('No reports found'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+            print("LENGTH: " + response.length.toString());
             setState(() {
-              _report_widgets.addAll([
-                make_report_widget(
-                    response[i]['created_at'], response[i]['description'])
-              ]);
+              _fetched = true;
             });
-          }
+            for (var i = 0; i < response.length; i++) {
+              setState(() {
+                _report_widgets.addAll([
+                  make_report_widget(
+                      response[i]['incident_type'] as String, "N/A"),
+                ]);
+              });
+            }
+
+            setState(() {
+              _isLoading = false;
+            });
+          });
         });
-      });
+      }
 
       setState(() {
         _isLoading = false;
       });
     }
 
-    SizedBox add_report_button = SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-          onPressed: getReports,
-          style: OutlinedButton.styleFrom(
-              backgroundColor: green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0)),
-              side: BorderSide(width: 2.0, color: Colors.black)),
-          child: const Row(children: <Widget>[
-            const Text('Fetch my reports',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                )),
-            const Spacer(),
-            const Icon(Icons.add)
-          ])),
+    Widget add_report_button = Stack(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+              onPressed: getReports,
+              style: OutlinedButton.styleFrom(
+                  backgroundColor: green,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
+                  side: BorderSide(width: 2.0, color: Colors.black)),
+              child: const Row(children: <Widget>[
+                const Text('Fetch my reports',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    )),
+                const Spacer(),
+                const Icon(Icons.add)
+              ])),
+        ),
+        if (_isLoading)
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child:
+                    LoadingAnimationWidget.beat(color: Colors.white, size: 50),
+              ),
+            ),
+          ),
+      ],
     );
 
-    if (_report_widgets.length < 1) _report_widgets.add(add_report_button);
+    // if (_report_widgets.length < 1) _report_widgets.add(add_report_button);
+    getReports();
     Container all_reports = Container(
       height: 256,
       child: ListView.builder(
@@ -274,10 +411,11 @@ class _ReportsState extends State<ReportsScreen> {
 
     return Stack(children: [
       Scaffold(
-        resizeToAvoidBottomInset: false,
+        // resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
         drawer: myDrawer,
         appBar: getAppBar(_scaffoldKey),
+        backgroundColor: const Color(0xFFFFFFFF),
         body: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0),
           child: Column(

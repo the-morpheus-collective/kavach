@@ -84,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       key: _scaffoldKey,
       drawer: myDrawer,
       appBar: getAppBar(_scaffoldKey),
+      backgroundColor: const Color(0xFFFFFFFF),
       body: Stack(children: [
         SingleChildScrollView(
           child: Padding(
@@ -376,9 +377,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _isLoading = true;
       });
-      await supabaseClient.from('emergencycontacts').insert({
+      await supabaseClient.from('users').update({
         'emergency_contacts': jsonEncode(_emergencyContacts),
-      });
+      }).eq('phone_number', _phoneNumber);
       setState(() {
         _isLoading = false;
       });
