@@ -33,7 +33,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   http: ^1.2.2
   url_launcher: ^6.3.0
-  flutter_compass_v2: any
+  # flutter_compass_v2: any
   share_plus: ^10.0.2
 dev_dependencies:
     flutter_test:

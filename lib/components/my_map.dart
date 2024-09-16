@@ -235,7 +235,7 @@ class _MyMapState extends State<MyMap> {
                           heatMapDataSource:
                               InMemoryHeatMapDataSource(data: data),
                           heatMapOptions: HeatMapOptions(
-                              gradient: gradient, minOpacity: 0.2),
+                              gradient: gradient, minOpacity: 0.1),
                           // reset: _rebuildStream.stream,
                         )
                       : Container(),
