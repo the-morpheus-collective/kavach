@@ -43,11 +43,11 @@ class _MyMapState extends State<MyMap> {
       initialLocation = value;
     });
 
-    onZoomChanged.listen((event) {
-      print('New zoom is $event');
+    // onZoomChanged.listen((event) {
+    //   print('New zoom is $event');
 
-      selfZoomState = event;
-    });
+    //   selfZoomState = event;
+    // });
     super.initState();
   }
 
@@ -125,13 +125,13 @@ class _MyMapState extends State<MyMap> {
     isLoading = false;
   }
 
-  final _streamController = StreamController<double>();
-  Stream<double> get onZoomChanged => _streamController.stream;
+  // final _streamController = StreamController<double>();
+  // Stream<double> get onZoomChanged => _streamController.stream;
 
   @override
   dispose() {
     // _rebuildStream.close();
-    _streamController.close();
+    // _streamController.close();
     super.dispose();
   }
 
@@ -168,7 +168,7 @@ class _MyMapState extends State<MyMap> {
 
   List<Marker> markerData = [];
 
-  var selfZoomState = 17.0;
+  // var selfZoomState = 17.0;
 
   @override
   Widget build(BuildContext context) {
@@ -203,15 +203,10 @@ class _MyMapState extends State<MyMap> {
                 mapController: _controller,
                 options: MapOptions(
                     initialCenter: initialLocation,
-                    initialZoom: selfZoomState,
+                    initialZoom: 19.0,
                     maxZoom: 22,
                     backgroundColor: Theme.of(context).canvasColor,
-                    onPositionChanged: (position, hasGesture) {
-                      final zoom = position.zoom;
-                      // if (zoom != selfZoomState) {
-                      _streamController.sink.add(zoom);
-                      // }
-                    }),
+                    onPositionChanged: (position, hasGesture) {}),
                 children: [
                   !isLoading
                       ? VectorTileLayer(
@@ -293,7 +288,7 @@ class _MyMapState extends State<MyMap> {
                           ],
                         )
                       : const SizedBox(),
-                  data.isNotEmpty && !isLoading && selfZoomState < 19
+                  data.isNotEmpty && !isLoading && 19 < 19
                       ? HeatMapLayer(
                           heatMapDataSource:
                               InMemoryHeatMapDataSource(data: data),
@@ -302,9 +297,7 @@ class _MyMapState extends State<MyMap> {
                           // reset: _rebuildStream.stream,
                         )
                       : Container(),
-                  selfZoomState >= 19
-                      ? MarkerLayer(markers: markerData)
-                      : Container(),
+                  19 >= 19 ? MarkerLayer(markers: markerData) : Container(),
                   // RichAttributionWidget(
                   //   // Include a stylish prebuilt attribution widget that meets all requirments
                   //   attributions: [
