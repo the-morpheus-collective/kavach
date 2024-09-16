@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:kavach/components/main_component.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kavach/secrets.dart' as s;
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 class VishnuScreen extends StatefulWidget {
   const VishnuScreen({super.key});
@@ -16,14 +16,12 @@ class VishnuScreen extends StatefulWidget {
 
 class _VishnuState extends State<VishnuScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Widget> _contact_widgets = [];
-  bool _isLoading = false;
-  String _phoneNumber = '';
+  List<Widget> _contactWidgets = [];
   final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
   final _storage = const FlutterSecureStorage();
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
-  final TextEditingController _contactNameController = TextEditingController();
+  late final String _journeyId;
 
   Future<String?> getPhoneNumber() async {
     final user = await _storage.read(key: 'user_id');
@@ -31,159 +29,82 @@ class _VishnuState extends State<VishnuScreen> {
     return user;
   }
 
-  Future<String?> getUserName() async {
-    _phoneNumber = (await getPhoneNumber())!;
-
+  Future<String> _getJourneyId() async {
+    print("DEBUG: Getting journey id");
+    var phoneNumber = await getPhoneNumber();
     final response = await supabaseClient
-        .from('users')
+        .from('journey')
         .select()
-        .eq('phone_number', _phoneNumber as Object);
+        .eq('user_id', phoneNumber as Object);
 
-    if (response.length == 0) {
-      return null;
-    }
-
-    return response[0]['username'] as String;
+    return response[0]['journey_id'] as String;
   }
 
   @override
   Widget build(BuildContext context) {
-    const blue = const Color(0xFF7196F4);
-    const dark_blue = const Color(0xFF0B308E);
-    const green = const Color(0xFF95F6A7);
-    const hero_icon = const Icon(
+    print("Vishnu Screen");
+
+    const blue = Color(0xFF7196F4);
+    const darkBlue = Color(0xFF0B308E);
+    const green = Color(0xFF95F6A7);
+    const heroIcon = Icon(
       Icons.share_location,
       color: blue,
       size: 192.0,
     );
-    const vishnu_text = const Text(
+    const vishnuText = Text(
       "Vishnu",
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 64, color: blue, fontWeight: FontWeight.bold),
     );
 
-    const subtitle_text = const Text(
+    const subtitleText = Text(
       "Share your location with your loved ones, ensuring a safe journey",
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 16),
     );
 
-    const border_styling = const OutlineInputBorder(
+    const borderStyling = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(16.0)),
       borderSide: BorderSide(color: Colors.black, width: 2.0),
     );
 
-    var from_text_input = TextField(
+    var fromTextInput = TextField(
       controller: _fromController,
       decoration: const InputDecoration(
         labelText: "From",
         suffixIcon: Icon(Icons.search),
-        enabledBorder: border_styling,
-        focusedBorder: border_styling,
+        enabledBorder: borderStyling,
+        focusedBorder: borderStyling,
       ),
     );
 
-    var to_text_input = TextField(
+    var toTextInput = TextField(
       controller: _toController,
       decoration: const InputDecoration(
           labelText: "To",
           suffixIcon: Icon(Icons.search),
-          enabledBorder: border_styling,
-          focusedBorder: border_styling),
+          enabledBorder: borderStyling,
+          focusedBorder: borderStyling),
     );
 
-    const space = const SizedBox(
+    const space = SizedBox(
       width: 12,
       height: 12,
     );
 
-    const half_space = const SizedBox(
+    const halfSpace = SizedBox(
       width: 8,
       height: 8,
     );
 
-    const divider = const Divider(thickness: 2, color: Colors.black);
+    const spacer = Spacer();
 
-    void editContact() {
-      showModalBottomSheet<void>(
-        // context and builder are
-        // required properties in this widget
-        context: context,
-        builder: (BuildContext context) {
-          const border_styling = const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0)),
-            borderSide: BorderSide(color: Colors.black, width: 2.0),
-          );
+    const divider = Divider(thickness: 2, color: Colors.black);
 
-          const report_location = const TextField(
-            decoration: InputDecoration(
-              labelText: "Report location",
-              enabledBorder: border_styling,
-              focusedBorder: border_styling,
-            ),
-          );
-          const additional_details = const TextField(
-            decoration: InputDecoration(
-              labelText: "Additional Details",
-              enabledBorder: border_styling,
-              focusedBorder: border_styling,
-            ),
-          );
+    Column contactHolder = Column(children: _contactWidgets);
 
-          return const SizedBox(
-              height: 480,
-              child: SizedBox(
-                  height: 256,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                    child: Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text('Editing Report',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 32)),
-                        space,
-                        report_location,
-                        space,
-                        additional_details,
-                      ],
-                    )),
-                  )));
-        },
-      );
-    }
-
-    GestureDetector make_contact_widget(String name, String number) {
-      return GestureDetector(
-          onTap: editContact,
-          child: Container(
-            decoration: BoxDecoration(
-              border: const Border(
-                top: BorderSide(color: Colors.black, width: 2),
-                right: BorderSide(color: Colors.black, width: 2),
-                bottom: BorderSide(color: Colors.black, width: 2),
-                left: BorderSide(color: Colors.black, width: 2),
-              ),
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(
-                  top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
-              child: Row(
-                children: [
-                  Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  Text(number),
-                ],
-              ),
-            ),
-          ));
-    }
-
-    Column contact_holder = Column(children: _contact_widgets);
-
-    OutlinedButton submit_button = OutlinedButton(
+    OutlinedButton submitButton = OutlinedButton(
       onPressed: () {},
       style: OutlinedButton.styleFrom(
         backgroundColor: blue,
@@ -191,7 +112,7 @@ class _VishnuState extends State<VishnuScreen> {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       ),
       child: const Row(children: <Widget>[
-        const Text(
+        Text(
           'Share Location',
           style: TextStyle(
             color: Colors.white,
@@ -199,101 +120,39 @@ class _VishnuState extends State<VishnuScreen> {
             fontSize: 20,
           ),
         ),
-        Spacer(),
-        const Icon(
+        spacer,
+        Icon(
           Icons.arrow_forward_rounded,
           color: Colors.white,
           size: 28,
         )
       ]),
     );
+    Widget shareButtonContainer = GestureDetector(
+      onTap: () async {
+        print("DEBUG: Share button pressed");
 
-    OutlinedButton share_button = OutlinedButton(
-      child: Icon(Icons.share, size: 28, color: Colors.black),
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        backgroundColor: green,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        side: BorderSide(color: Colors.black),
+        // var journeyId = await _getJourneyId();
+        Share.share('You can track my commute here: http://localhost:3000/',
+            subject: 'Track Me!');
+      },
+      child: Container(
+        height: 64.0,
+        width: 128.0,
+        decoration: BoxDecoration(
+          border: const Border(
+            left: BorderSide(color: Colors.black, width: 2.0),
+            top: BorderSide(color: Colors.black, width: 2.0),
+            right: BorderSide(color: Colors.black, width: 6.0),
+            bottom: BorderSide(color: Colors.black, width: 6.0),
+          ),
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: const Icon(Icons.share, size: 28, color: Colors.black),
       ),
     );
 
-    Container submit_button_container = Container(
-        height: 64.0,
-        width: 256.0,
-        decoration: BoxDecoration(
-            border: const Border(
-              left: const BorderSide(color: dark_blue, width: 2.0),
-              top: const BorderSide(color: dark_blue, width: 2.0),
-              right: const BorderSide(color: dark_blue, width: 6.0),
-              bottom: const BorderSide(color: dark_blue, width: 6.0),
-            ),
-            borderRadius: BorderRadius.circular(16.0)),
-        child: submit_button);
-
-    Container share_button_container = Container(
-        height: 64.0,
-        decoration: BoxDecoration(
-            border: const Border(
-              left: const BorderSide(color: Colors.black, width: 2.0),
-              top: const BorderSide(color: Colors.black, width: 2.0),
-              right: const BorderSide(color: Colors.black, width: 6.0),
-              bottom: const BorderSide(color: Colors.black, width: 6.0),
-            ),
-            borderRadius: BorderRadius.circular(16.0)),
-        child: share_button);
-
-    Row bottom_buttons = Row(
-      children: [submit_button_container, Spacer(), share_button_container],
-    );
-
-    void _update_contact_widgets() {
-      setState(() {
-        const half_space = const SizedBox(
-          width: 8,
-          height: 8,
-        );
-        _contact_widgets.addAll(
-          <Widget>[
-            make_contact_widget("Pranjal Rastogi", "9910708969"),
-            half_space
-          ],
-        );
-      });
-    }
-
-    SizedBox add_contact_button = SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-          onPressed: _update_contact_widgets,
-          style: OutlinedButton.styleFrom(
-              backgroundColor: green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0)),
-              side: BorderSide(width: 2.0, color: Colors.black)),
-          child: const Row(children: <Widget>[
-            const Text('Add contacts',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w800,
-                )),
-            const Spacer(),
-            const Icon(Icons.add)
-          ])),
-    );
-
-    if (_contact_widgets.length < 1) _contact_widgets.add(add_contact_button);
-    Container all_contacts = Container(
-      height: 128,
-      child: ListView.builder(
-        itemCount: _contact_widgets.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _contact_widgets[index];
-        },
-      ),
-    );
+    print("Scafflod key");
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -306,17 +165,17 @@ class _VishnuState extends State<VishnuScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              hero_icon,
-              vishnu_text,
-              subtitle_text,
               space,
-              from_text_input,
+              heroIcon,
+              vishnuText,
+              subtitleText,
               space,
-              to_text_input,
-              divider,
-              all_contacts,
-              divider,
-              bottom_buttons
+              fromTextInput,
+              space,
+              toTextInput,
+              spacer,
+              shareButtonContainer,
+              space,
             ],
           ),
         ),
