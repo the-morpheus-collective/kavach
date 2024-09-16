@@ -99,6 +99,8 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  var _showMarkers = false;
+
   @override
   Widget build(BuildContext context) {
     final List<FabData> fabData = [
@@ -279,6 +281,7 @@ class _MainScreenState extends State<MainScreen> {
                   child: MyMap(
                     selectedLocation: _selectedLocation,
                     filters: filters,
+                    showMarker: _showMarkers,
                   ),
                 ),
                 Container(
@@ -593,6 +596,34 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             )
                           : Container(),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ChoiceChip(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                          checkmarkColor: Colors.white,
+                          backgroundColor: const Color(0xEE242829),
+                          selectedColor: const Color(0xFF242829),
+                          selectedShadowColor: Colors.black,
+                          label: Text(
+                            'Show Markers',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily:
+                                  GoogleFonts.jetBrainsMono().fontFamily,
+                              fontSize: 12,
+                            ),
+                          ),
+                          selected: _showMarkers,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              _showMarkers = selected;
+                            });
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
