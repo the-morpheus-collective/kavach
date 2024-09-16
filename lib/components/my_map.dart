@@ -342,64 +342,69 @@ class _MyMapState extends State<MyMap> {
                       // ),
                     ],
                   ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 130.0),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(
-                            0xFFFFFFFF,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                          border: const Border(
-                            top: BorderSide(
-                              color: Colors.black,
-                              width: 1.5,
-                            ),
-                            left: BorderSide(
-                              color: Colors.black,
-                              width: 1.5,
-                            ),
-                            bottom: BorderSide(
-                              color: Colors.black,
-                              width: 4,
-                            ),
-                            right: BorderSide(
-                              color: Colors.black,
-                              width: 4,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 2.0),
-                              child: Text(
-                                popUpTitle,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                  popUpTitle.isNotEmpty && popUpDescription.isNotEmpty
+                      ? Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                10.0, 0.0, 0.0, 110.0),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Color(
+                                  0xFFFFFFFF,
+                                ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(16.0)),
+                                border: Border(
+                                  top: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.5,
+                                  ),
+                                  left: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.5,
+                                  ),
+                                  bottom: BorderSide(
+                                    color: Colors.black,
+                                    width: 4,
+                                  ),
+                                  right: BorderSide(
+                                    color: Colors.black,
+                                    width: 4,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 2.0),
-                              child: Text(
-                                popUpDescription,
-                                style: const TextStyle(color: Colors.black),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 8.0, 8.0, 2.0),
+                                    child: Text(
+                                      popUpTitle,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 2.0, 8.0, 2.0),
+                                    child: Text(
+                                      popUpDescription,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ],
               );
             })
