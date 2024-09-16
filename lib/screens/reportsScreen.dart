@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -145,23 +146,23 @@ class _ReportsState extends State<ReportsScreen> {
 
                         Navigator.of(context).pop();
                       } catch (e) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Error'),
-                              content: const Text('No reports found'),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                        // showDialog(
+                        //   context: context,
+                        //   builder: (BuildContext context) {
+                        //     return AlertDialog(
+                        //       title: const Text('Error'),
+                        //       content: const Text('No reports found'),
+                        //       actions: <Widget>[
+                        //         TextButton(
+                        //           onPressed: () {
+                        //             Navigator.of(context).pop();
+                        //           },
+                        //           child: const Text('OK'),
+                        //         ),
+                        //       ],
+                        //     );
+                        //   },
+                        // );
                       }
                       Navigator.of(context).pop();
                     },
@@ -207,63 +208,67 @@ class _ReportsState extends State<ReportsScreen> {
             ],
           );
           return SizedBox(
-              height: 300,
-              child: SizedBox(
-                  height: 256,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                    child: Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text('Editing Report',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 32)),
-                        space,
-                        additional_details,
-                        space,
-                        submit,
-                        space,
-                      ],
-                    )),
-                  )));
+            height: 400 + MediaQuery.of(context).viewInsets.bottom,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  20.0, 0.0, 20.0, MediaQuery.of(context).viewInsets.bottom),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text('Editing Report',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 32)),
+                    space,
+                    additional_details,
+                    space,
+                    submit,
+                    space,
+                  ],
+                ),
+              ),
+            ),
+          );
         },
       );
     }
 
-    GestureDetector make_report_widget(
-        String indcidentType, String discription) {
-      return GestureDetector(
-          onTap: editReport,
-          child: Container(
-            decoration: BoxDecoration(
-              border: const Border(
-                top: BorderSide(color: Colors.black, width: 2),
-                right: BorderSide(color: Colors.black, width: 2),
-                bottom: BorderSide(color: Colors.black, width: 2),
-                left: BorderSide(color: Colors.black, width: 2),
+    Widget make_report_widget(String indcidentType, String discription) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
+        child: GestureDetector(
+            onTap: editReport,
+            child: Container(
+              decoration: BoxDecoration(
+                border: const Border(
+                  top: BorderSide(color: Colors.black, width: 2),
+                  right: BorderSide(color: Colors.black, width: 2),
+                  bottom: BorderSide(color: Colors.black, width: 2),
+                  left: BorderSide(color: Colors.black, width: 2),
+                ),
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(
-                  top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
-              child: Row(
-                children: [
-                  Text(indcidentType,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  Text(discription),
-                ],
+              child: Padding(
+                padding: EdgeInsets.only(
+                    top: 8.0, bottom: 8.0, left: 18.0, right: 18.0),
+                child: Row(
+                  children: [
+                    Text(indcidentType,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    Text(discription),
+                  ],
+                ),
               ),
-            ),
-          ));
+            )),
+      );
     }
 
     const heading_text = const Text(
       "My Reports",
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 64, color: red, fontWeight: FontWeight.bold),
+      style: TextStyle(fontSize: 48, color: red, fontWeight: FontWeight.bold),
     );
 
     const subtitle_text = const Text(
@@ -344,7 +349,13 @@ class _ReportsState extends State<ReportsScreen> {
               setState(() {
                 _report_widgets.addAll([
                   make_report_widget(
-                      response[i]['incident_type'] as String, "N/A"),
+                    response[i]['incident_type'] as String,
+                    DateFormat("dd-MM").format(
+                      DateTime.parse(
+                        response[i]['timestamp'],
+                      ),
+                    ),
+                  ),
                 ]);
               });
             }
@@ -400,7 +411,7 @@ class _ReportsState extends State<ReportsScreen> {
     // if (_report_widgets.length < 1) _report_widgets.add(add_report_button);
     getReports();
     Container all_reports = Container(
-      height: 256,
+      height: 364,
       child: ListView.builder(
         itemCount: _report_widgets.length,
         itemBuilder: (BuildContext context, int index) {
@@ -419,6 +430,7 @@ class _ReportsState extends State<ReportsScreen> {
         body: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               hero_icon,

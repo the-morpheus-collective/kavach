@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vector_map_tiles/vector_map_tiles.dart';
 import 'package:vector_tile_renderer/vector_tile_renderer.dart' hide Theme;
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
@@ -21,7 +22,7 @@ import 'package:kavach/secrets.dart' as s;
 class MyMap extends StatefulWidget {
   final Set<TypeFilter> filters;
   final LocData? selectedLocation;
-  final showMarker;
+  final bool showMarker;
 
   const MyMap(
       {super.key,
@@ -462,6 +463,59 @@ class _MyMapState extends State<MyMap> {
                           ),
                         )
                       : Container(),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 15.0, 160.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          _controller.move(await _getCurrentLocation(), 17.0);
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 30, 106, 239),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(80.0)),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(Icons.location_searching,
+                                color: Colors.white, size: 25.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 65.0, 160.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (widget.selectedLocation != null) {
+                            var currLocation = await _getCurrentLocation();
+                            launchUrl(
+                              Uri.parse(
+                                  "https://www.google.com/maps/dir/?api=1&origin=${currLocation.latitude},${currLocation.longitude}&destination=${widget.selectedLocation!.lat},${widget.selectedLocation!.lon}&travelmode=driving"),
+                            );
+                            _controller.move(await _getCurrentLocation(), 16.0);
+                          }
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 30, 106, 239),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(80.0)),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(Icons.map,
+                                color: Colors.white, size: 25.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               );
             })

@@ -336,7 +336,7 @@ class NominatimAPI {
     }
     http.Response res = await http.get(
       Uri.parse(
-          "https://nominatim.openstreetmap.org/search?q=$query&limit=5&format=json"),
+          "https://nominatim.openstreetmap.org/search?q=$query&limit=5&format=json&countrycodes=in"),
     );
     if (res.statusCode != 200) {
       debugPrint("NON 200 CODE {$res.statusCode}");
