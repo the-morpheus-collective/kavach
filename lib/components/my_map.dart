@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
@@ -40,6 +42,12 @@ class _MyMapState extends State<MyMap> {
     _getCurrentLocation().then((value) {
       initialLocation = value;
     });
+
+    onZoomChanged.listen((event) {
+      print('New zoom is $event');
+
+      selfZoomState = event;
+    });
     super.initState();
   }
 
@@ -66,56 +74,64 @@ class _MyMapState extends State<MyMap> {
     List<WeightedLatLng> tdata = [];
     List<Marker> tmarkerData = [];
     for (var e in supaData) {
-      tdata.add(
-        WeightedLatLng(
-          LatLng(e['latitude'] as double, e['longitude'] as double),
-          1,
-        ),
-      );
-      tmarkerData.add(
-        Marker(
-          point: LatLng(e['latitude'] as double, e['longitude'] as double),
-          width: 21,
-          height: 21,
-          child: Stack(
-            children: [
-              Container(
-                width: 21,
-                height: 21,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: const <BoxShadow>[
-                    BoxShadow(
-                      spreadRadius: 0.0,
-                      blurRadius: 4.0,
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: Container(
-                  width: 16,
-                  height: 16,
+      try {
+        tdata.add(
+          WeightedLatLng(
+            LatLng(e['latitude'] as double, e['longitude'] as double),
+            1,
+          ),
+        );
+      } catch (_) {}
+      try {
+        tmarkerData.add(
+          Marker(
+            point: LatLng(e['latitude'] as double, e['longitude'] as double),
+            width: 21,
+            height: 21,
+            child: Stack(
+              children: [
+                Container(
+                  width: 21,
+                  height: 21,
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(100),
+                    boxShadow: const <BoxShadow>[
+                      BoxShadow(
+                        spreadRadius: 0.0,
+                        blurRadius: 4.0,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Center(
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      } catch (_) {}
     }
     data = tdata;
     markerData = tmarkerData;
     isLoading = false;
   }
 
+  final _streamController = StreamController<double>();
+  Stream<double> get onZoomChanged => _streamController.stream;
+
   @override
   dispose() {
     // _rebuildStream.close();
+    _streamController.close();
     super.dispose();
   }
 
@@ -152,6 +168,8 @@ class _MyMapState extends State<MyMap> {
 
   List<Marker> markerData = [];
 
+  var selfZoomState = 17.0;
+
   @override
   Widget build(BuildContext context) {
     if (_style == null) {
@@ -185,9 +203,15 @@ class _MyMapState extends State<MyMap> {
                 mapController: _controller,
                 options: MapOptions(
                     initialCenter: initialLocation,
-                    initialZoom: 17.0,
+                    initialZoom: selfZoomState,
                     maxZoom: 22,
-                    backgroundColor: Theme.of(context).canvasColor),
+                    backgroundColor: Theme.of(context).canvasColor,
+                    onPositionChanged: (position, hasGesture) {
+                      final zoom = position.zoom;
+                      // if (zoom != selfZoomState) {
+                      _streamController.sink.add(zoom);
+                      // }
+                    }),
                 children: [
                   !isLoading
                       ? VectorTileLayer(
@@ -269,7 +293,7 @@ class _MyMapState extends State<MyMap> {
                           ],
                         )
                       : const SizedBox(),
-                  data.isNotEmpty
+                  data.isNotEmpty && !isLoading && selfZoomState < 19
                       ? HeatMapLayer(
                           heatMapDataSource:
                               InMemoryHeatMapDataSource(data: data),
@@ -277,6 +301,9 @@ class _MyMapState extends State<MyMap> {
                               gradient: gradient, minOpacity: 0.1),
                           // reset: _rebuildStream.stream,
                         )
+                      : Container(),
+                  selfZoomState >= 19
+                      ? MarkerLayer(markers: markerData)
                       : Container(),
                   // RichAttributionWidget(
                   //   // Include a stylish prebuilt attribution widget that meets all requirments
