@@ -1,10 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kavach/secrets.dart' as s;
-import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 class VishnuScreen extends StatefulWidget {
@@ -16,12 +13,10 @@ class VishnuScreen extends StatefulWidget {
 
 class _VishnuState extends State<VishnuScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Widget> _contactWidgets = [];
-  final supabaseClient = SupabaseClient(s.supabaseUrl, s.supabaseAnonKey);
+  final supabaseClient = Supabase.instance.client;
   final _storage = const FlutterSecureStorage();
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
-  late final String _journeyId;
 
   Future<String?> getPhoneNumber() async {
     final user = await _storage.read(key: 'user_id');
@@ -45,8 +40,6 @@ class _VishnuState extends State<VishnuScreen> {
     print("Vishnu Screen");
 
     const blue = Color(0xFF7196F4);
-    const darkBlue = Color(0xFF0B308E);
-    const green = Color(0xFF95F6A7);
     const heroIcon = Icon(
       Icons.share_location,
       color: blue,
@@ -93,41 +86,8 @@ class _VishnuState extends State<VishnuScreen> {
       height: 12,
     );
 
-    const halfSpace = SizedBox(
-      width: 8,
-      height: 8,
-    );
-
     const spacer = Spacer();
 
-    const divider = Divider(thickness: 2, color: Colors.black);
-
-    Column contactHolder = Column(children: _contactWidgets);
-
-    OutlinedButton submitButton = OutlinedButton(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        backgroundColor: blue,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      ),
-      child: const Row(children: <Widget>[
-        Text(
-          'Share Location',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        spacer,
-        Icon(
-          Icons.arrow_forward_rounded,
-          color: Colors.white,
-          size: 28,
-        )
-      ]),
-    );
     Widget shareButtonContainer = GestureDetector(
       onTap: () async {
         print("DEBUG: Share button pressed");
