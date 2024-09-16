@@ -42,6 +42,8 @@ class _MainScreenState extends State<MainScreen> {
     } else {
       if (emergencyMode) {
         setState(() {
+          _timer.cancel();
+          emergencySeconds = 5;
           emergencyMode = false;
         });
       }
