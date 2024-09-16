@@ -60,6 +60,28 @@ Color getColor(TypeFilter fitler) {
   }
 }
 
+String getSafetyContent(String text) {
+  if (text.contains("Other")) {
+    return "Find a safe place where many people are around. Usually, this is a public place like a store or a restaurant.";
+  } else if (text.contains("Children in Danger")) {
+    return "If you feel unsafe, stay calm, find a safe place, and tell a trusted adult right away.";
+  } else if (text.contains("Street Harassment")) {
+    return "If someone harasses you, stay calm, move to a safe area, and seek help from people nearby.";
+  } else if (text.contains("Natural Disasters")) {
+    return "Stay calm, follow safety plans, and move to a safe area. Listen to authorities for updates.";
+  } else if (text.contains("Volatile Groups")) {
+    return "Avoid engaging, keep your distance, and move to a safe, well-lit area. Seek help if needed.";
+  } else if (text.contains("Sexual Harassment")) {
+    return "Say 'no,' leave the situation immediately, and tell a trusted authority for help.";
+  } else if (text.contains("Theft/Pickpocketing")) {
+    return "Stay calm, don't resist. Memorize details and report the incident later.";
+  } else if (text.contains("Physical Conflict")) {
+    return "Avoid fighting back, try to leave safely, and seek help from an authority. You can use the SOS feature to alert your contacts.";
+  } else {
+    return "No Tips Available";
+  }
+}
+
 TypeFilter getTypeFilter(String text) {
   switch (text) {
     case "Other":

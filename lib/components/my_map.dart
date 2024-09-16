@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:kavach/components/main_component.dart';
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:latlong2/latlong.dart';
@@ -20,8 +21,13 @@ import 'package:kavach/secrets.dart' as s;
 class MyMap extends StatefulWidget {
   final Set<TypeFilter> filters;
   final LocData? selectedLocation;
+  final showMarker;
 
-  const MyMap({super.key, this.selectedLocation, required this.filters});
+  const MyMap(
+      {super.key,
+      this.selectedLocation,
+      required this.filters,
+      required this.showMarker});
 
   @override
   State<MyMap> createState() => _MyMapState();
@@ -88,33 +94,50 @@ class _MyMapState extends State<MyMap> {
             point: LatLng(e['latitude'] as double, e['longitude'] as double),
             width: 21,
             height: 21,
-            child: Stack(
-              children: [
-                Container(
-                  width: 21,
-                  height: 21,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: const <BoxShadow>[
-                      BoxShadow(
-                        spreadRadius: 0.0,
-                        blurRadius: 4.0,
-                      ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: Container(
-                    width: 16,
-                    height: 16,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  popUpTitle = "${e['incident_type'] as String} Incident";
+                  final DateFormat formatter = DateFormat('dd-MM-yy');
+                  final DateTime createdTime = DateTime.parse(e['timestamp']);
+                  if (e['description'] == null) {
+                    popUpDescription =
+                        "No description available\nCreated at: ${formatter.format(createdTime)}";
+                  } else {
+                    popUpDescription = e['description'] as String;
+                    popUpDescription +=
+                        "\nCreated at: ${formatter.format(createdTime)}";
+                  }
+                });
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    width: 21,
+                    height: 21,
                     decoration: BoxDecoration(
-                      color: getColor(getTypeFilter(e["incident_type"])),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(100),
+                      boxShadow: const <BoxShadow>[
+                        BoxShadow(
+                          spreadRadius: 0.0,
+                          blurRadius: 4.0,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  Center(
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: getColor(getTypeFilter(e["incident_type"])),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -170,6 +193,9 @@ class _MyMapState extends State<MyMap> {
 
   // var selfZoomState = 17.0;
 
+  var popUpTitle = "";
+  var popUpDescription = "";
+
   @override
   Widget build(BuildContext context) {
     if (_style == null) {
@@ -199,115 +225,244 @@ class _MyMapState extends State<MyMap> {
                   size: 40,
                 );
               }
-              return FlutterMap(
-                mapController: _controller,
-                options: MapOptions(
-                    initialCenter: initialLocation,
-                    initialZoom: 19.0,
-                    maxZoom: 22,
-                    backgroundColor: Theme.of(context).canvasColor,
-                    onPositionChanged: (position, hasGesture) {}),
+              return Stack(
                 children: [
-                  !isLoading
-                      ? VectorTileLayer(
-                          tileProviders: _style!.providers,
-                          theme: _style!.theme,
-                          sprites: _style!.sprites,
-                          maximumZoom: 22,
-                          tileOffset: TileOffset.mapbox,
-                          layerMode: VectorTileLayerMode.vector,
-                        )
-                      : Container(),
-                  StreamBuilder<CompassEvent>(
-                      stream: FlutterCompass.events,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Text(
-                              'Error reading heading: ${snapshot.error}');
-                        }
-                        if (!snapshot.hasData) {
-                          return const Text('Heading not available');
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        double? direction = snapshot.data!.heading;
+                  FlutterMap(
+                    mapController: _controller,
+                    options: MapOptions(
+                        initialCenter: initialLocation,
+                        initialZoom: 19.0,
+                        maxZoom: 22,
+                        backgroundColor: Theme.of(context).canvasColor,
+                        onPositionChanged: (position, hasGesture) {}),
+                    children: [
+                      !isLoading
+                          ? VectorTileLayer(
+                              tileProviders: _style!.providers,
+                              theme: _style!.theme,
+                              sprites: _style!.sprites,
+                              maximumZoom: 22,
+                              tileOffset: TileOffset.mapbox,
+                              layerMode: VectorTileLayerMode.vector,
+                            )
+                          : Container(),
+                      StreamBuilder<CompassEvent>(
+                          stream: FlutterCompass.events,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Text(
+                                  'Error reading heading: ${snapshot.error}');
+                            }
+                            if (!snapshot.hasData) {
+                              return const Text('Heading not available');
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            double? direction = snapshot.data!.heading;
 
-                        // if direction is null, then device does not support this sensor
-                        // show error message
-                        if (direction == null) {
-                          return const Center(
-                            child: Text("Device does not have sensors!!"),
-                          );
-                        }
-                        return CurrentLocationLayer();
-                      }),
-                  widget.selectedLocation != null
-                      ? MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: LatLng(
-                                widget.selectedLocation?.lat ?? 0.0,
-                                widget.selectedLocation?.lon ?? 0.0,
-                              ),
-                              width: 21,
-                              height: 21,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 21,
-                                    height: 21,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(100),
-                                      boxShadow: const <BoxShadow>[
-                                        BoxShadow(
-                                          spreadRadius: 0.0,
-                                          blurRadius: 4.0,
-                                        ),
-                                      ],
-                                    ),
+                            // if direction is null, then device does not support this sensor
+                            // show error message
+                            if (direction == null) {
+                              return const Center(
+                                child: Text("Device does not have sensors!!"),
+                              );
+                            }
+                            return CurrentLocationLayer();
+                          }),
+                      widget.selectedLocation != null
+                          ? MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: LatLng(
+                                    widget.selectedLocation?.lat ?? 0.0,
+                                    widget.selectedLocation?.lon ?? 0.0,
                                   ),
-                                  Center(
-                                    child: Container(
-                                      width: 16,
-                                      height: 16,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius:
-                                            BorderRadius.circular(100),
+                                  width: 21,
+                                  height: 21,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width: 21,
+                                        height: 21,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          boxShadow: const <BoxShadow>[
+                                            BoxShadow(
+                                              spreadRadius: 0.0,
+                                              blurRadius: 4.0,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const SizedBox(),
+                      data.isNotEmpty && !isLoading && !widget.showMarker
+                          ? HeatMapLayer(
+                              heatMapDataSource:
+                                  InMemoryHeatMapDataSource(data: data),
+                              heatMapOptions: HeatMapOptions(
+                                  gradient: gradient, minOpacity: 0.1),
+                              // reset: _rebuildStream.stream,
+                            )
+                          : Container(),
+                      widget.showMarker
+                          ? MarkerLayer(markers: markerData)
+                          : Container()
+
+                      // RichAttributionWidget(
+                      //   // Include a stylish prebuilt attribution widget that meets all requirments
+                      //   attributions: [
+                      //     TextSourceAttribution(
+                      //       'OpenStreetMap contributors',
+                      //       onTap: () => {}, // (external)
+                      //     ),
+                      //     // Also add images...
+                      //   ],
+                      // ),
+                    ],
+                  ),
+                  popUpTitle.isNotEmpty && popUpDescription.isNotEmpty
+                      ? Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                10.0, 0.0, 0.0, 110.0),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Color(
+                                  0xFFFFFFFF,
+                                ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(16.0)),
+                                border: Border(
+                                  top: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.5,
+                                  ),
+                                  left: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.5,
+                                  ),
+                                  bottom: BorderSide(
+                                    color: Colors.black,
+                                    width: 4,
+                                  ),
+                                  right: BorderSide(
+                                    color: Colors.black,
+                                    width: 4,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 8.0, 8.0, 2.0),
+                                    child: Text(
+                                      popUpTitle,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 2.0, 8.0, 2.0),
+                                    child: Text(
+                                      popUpDescription,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 2.0, 8.0, 2.0),
+                                    child: TextButton(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        backgroundColor:
+                                            const Color(0xFF000000),
+                                        enableFeedback: true,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 6, 8, 6),
+                                        minimumSize: const Size(0, 0),
+                                      ),
+                                      onPressed: () => showDialog<String>(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                          iconColor: Colors.white,
+                                          backgroundColor: Colors.black,
+                                          title: const Text(
+                                            'Stay Safe!',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          content: Text(
+                                            getSafetyContent(popUpTitle),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Colors.black,
+                                                backgroundColor: Colors.white,
+                                                enableFeedback: true,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                    16.0,
+                                                  ),
+                                                ),
+                                                minimumSize: const Size(0, 0),
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.pop(context, 'OK'),
+                                              child: const Text('OK'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      child: const Text("Tips to Stay Safe"),
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
-                          ],
-                        )
-                      : const SizedBox(),
-                  data.isNotEmpty && !isLoading && 19 < 19
-                      ? HeatMapLayer(
-                          heatMapDataSource:
-                              InMemoryHeatMapDataSource(data: data),
-                          heatMapOptions: HeatMapOptions(
-                              gradient: gradient, minOpacity: 0.1),
-                          // reset: _rebuildStream.stream,
+                          ),
                         )
                       : Container(),
-                  19 >= 19 ? MarkerLayer(markers: markerData) : Container(),
-                  // RichAttributionWidget(
-                  //   // Include a stylish prebuilt attribution widget that meets all requirments
-                  //   attributions: [
-                  //     TextSourceAttribution(
-                  //       'OpenStreetMap contributors',
-                  //       onTap: () => {}, // (external)
-                  //     ),
-                  //     // Also add images...
-                  //   ],
-                  // ),
                 ],
               );
             })
