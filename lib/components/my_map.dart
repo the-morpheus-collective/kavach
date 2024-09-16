@@ -53,6 +53,7 @@ class _MyMapState extends State<MyMap> {
     final supabaseClient = Supabase.instance.client;
     if (widget.filters.isEmpty) {
       data = [];
+      markerData = [];
       return;
     }
     debugPrint(widget.filters.map((e) => getTextFromTypeFilter(e)).toList()[0]);
@@ -63,6 +64,7 @@ class _MyMapState extends State<MyMap> {
         );
 
     List<WeightedLatLng> tdata = [];
+    List<Marker> tmarkerData = [];
     for (var e in supaData) {
       tdata.add(
         WeightedLatLng(
@@ -70,8 +72,44 @@ class _MyMapState extends State<MyMap> {
           1,
         ),
       );
+      tmarkerData.add(
+        Marker(
+          point: LatLng(e['latitude'] as double, e['longitude'] as double),
+          width: 21,
+          height: 21,
+          child: Stack(
+            children: [
+              Container(
+                width: 21,
+                height: 21,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: const <BoxShadow>[
+                    BoxShadow(
+                      spreadRadius: 0.0,
+                      blurRadius: 4.0,
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     data = tdata;
+    markerData = tmarkerData;
     isLoading = false;
   }
 
@@ -112,7 +150,7 @@ class _MyMapState extends State<MyMap> {
     1.0: Colors.purple
   };
 
-  List<Marker> getMarkers() {}
+  List<Marker> markerData = [];
 
   @override
   Widget build(BuildContext context) {
@@ -186,16 +224,8 @@ class _MyMapState extends State<MyMap> {
                             child: Text("Device does not have sensors!!"),
                           );
                         }
-
-                        if (_controller.camera.zoom > 20) {
-                          return const SizedBox();
-                        }
                         return CurrentLocationLayer();
                       }),
-                  (_controller.camera.zoom > 20)
-                      ? MarkerLayer(markers: getMarkers())
-                      : Container(),
-
                   widget.selectedLocation != null
                       ? MarkerLayer(
                           markers: [
