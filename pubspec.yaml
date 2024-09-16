@@ -35,6 +35,8 @@ dependencies:
   url_launcher: ^6.3.0
   # flutter_compass_v2: any
   share_plus: ^10.0.2
+  # flutter_phone_direct_caller: ^2.1.1
+
 dev_dependencies:
     flutter_test:
         sdk: flutter

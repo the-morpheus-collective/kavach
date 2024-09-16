@@ -89,6 +89,7 @@ class _MainScreenState extends State<MainScreen> {
           setState(() {
             timer.cancel();
           });
+          launchUrl(Uri.parse("tel:112"));
         } else {
           setState(() {
             emergencySeconds--;
