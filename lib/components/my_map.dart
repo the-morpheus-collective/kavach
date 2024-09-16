@@ -236,16 +236,15 @@ class _MyMapState extends State<MyMap> {
                         backgroundColor: Theme.of(context).canvasColor,
                         onPositionChanged: (position, hasGesture) {}),
                     children: [
-                      !isLoading
-                          ? VectorTileLayer(
-                              tileProviders: _style!.providers,
-                              theme: _style!.theme,
-                              sprites: _style!.sprites,
-                              maximumZoom: 22,
-                              tileOffset: TileOffset.mapbox,
-                              layerMode: VectorTileLayerMode.vector,
-                            )
-                          : Container(),
+                      // !isLoading
+                      VectorTileLayer(
+                        tileProviders: _style!.providers,
+                        theme: _style!.theme,
+                        sprites: _style!.sprites,
+                        maximumZoom: 22,
+                        tileOffset: TileOffset.mapbox,
+                        layerMode: VectorTileLayerMode.vector,
+                      ),
                       StreamBuilder<CompassEvent>(
                           stream: FlutterCompass.events,
                           builder: (context, snapshot) {
