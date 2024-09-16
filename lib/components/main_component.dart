@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
 import 'package:kavach/screens/reportsScreen.dart';
@@ -323,4 +326,39 @@ AppBar getAppBar(GlobalKey<ScaffoldState> scaffoldKey) {
     ),
     centerTitle: true,
   );
+}
+
+class NominatimAPI {
+  // Searches the options, but injects a fake "network" delay.
+  static Future<Iterable<LocData>> search(String query) async {
+    if (query == '') {
+      return const Iterable<LocData>.empty();
+    }
+    http.Response res = await http.get(
+      Uri.parse(
+          "https://nominatim.openstreetmap.org/search?q=$query&limit=5&format=json"),
+    );
+    if (res.statusCode != 200) {
+      debugPrint("NON 200 CODE {$res.statusCode}");
+      return const Iterable<LocData>.empty();
+    }
+    return _constructFromAPIResponse(res);
+  }
+
+  static Iterable<LocData> _constructFromAPIResponse(http.Response res) {
+    debugPrint("Constructing");
+    var parsedResponse = jsonDecode(res.body);
+    // debugPrint(parsedResponse.toString());
+
+    return (parsedResponse)
+        .map<LocData>((dynamic e) => LocData(
+              lat: double.parse(e['lat']),
+              lon: double.parse(e['lon']),
+              boundingBox:
+                  e['boundingbox'].map<double>((e) => double.parse(e)).toList(),
+              displayName: e['display_name'] as String,
+              miniName: e['name'] as String,
+            ))
+        .toList();
+  }
 }

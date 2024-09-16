@@ -308,7 +308,7 @@ class _MainScreenState extends State<MainScreen> {
                                 (TextEditingValue textEditingValue) async {
                               _searchingWithQuery = textEditingValue.text;
                               final Iterable<LocData> options =
-                                  await _NominatimAPI.search(
+                                  await NominatimAPI.search(
                                       _searchingWithQuery!);
 
                               // If another search happened after this one, throw away these options.
@@ -813,40 +813,5 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
-  }
-}
-
-class _NominatimAPI {
-  // Searches the options, but injects a fake "network" delay.
-  static Future<Iterable<LocData>> search(String query) async {
-    if (query == '') {
-      return const Iterable<LocData>.empty();
-    }
-    http.Response res = await http.get(
-      Uri.parse(
-          "https://nominatim.openstreetmap.org/search?q=$query&limit=5&format=json"),
-    );
-    if (res.statusCode != 200) {
-      debugPrint("NON 200 CODE {$res.statusCode}");
-      return const Iterable<LocData>.empty();
-    }
-    return _constructFromAPIResponse(res);
-  }
-
-  static Iterable<LocData> _constructFromAPIResponse(http.Response res) {
-    debugPrint("Constructing");
-    var parsedResponse = jsonDecode(res.body);
-    // debugPrint(parsedResponse.toString());
-
-    return (parsedResponse)
-        .map<LocData>((dynamic e) => LocData(
-              lat: double.parse(e['lat']),
-              lon: double.parse(e['lon']),
-              boundingBox:
-                  e['boundingbox'].map<double>((e) => double.parse(e)).toList(),
-              displayName: e['display_name'] as String,
-              miniName: e['name'] as String,
-            ))
-        .toList();
   }
 }
