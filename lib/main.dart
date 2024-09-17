@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kavach/screens/mainScreen.dart';
 import 'package:kavach/screens/vishnuScreen.dart';
@@ -31,19 +32,25 @@ class _MyAppState extends State<MyApp> {
   var _hasPermissions = false;
 
   void _fetchPermissionStatus() {
-    Permission.locationWhenInUse.status.then((status) {
-      setState(() => _hasPermissions = status == PermissionStatus.granted);
-    }).catchError((e) {
-      print(e);
-    });
+    // Permission.locationWhenInUse.status.then((status) {
+    //   setState(() => _hasPermissions = status == PermissionStatus.granted);
+    // }).catchError((e) {
+    //   print(e);
+    // });
 
-    if (!_hasPermissions) {
-      Permission.locationWhenInUse.request().then((status) {
-        setState(() => _hasPermissions = status == PermissionStatus.granted);
-      }).catchError((e) {
-        print(e);
+    // if (!_hasPermissions) {
+    //   Permission.locationWhenInUse.request().then((status) {
+    //     setState(() => _hasPermissions = status == PermissionStatus.granted);
+    //   }).catchError((e) {
+    //     print(e);
+    //   });
+    // }
+    Geolocator.requestPermission().then((status) {
+      setState(() {
+        _hasPermissions = status == LocationPermission.whileInUse ||
+            status == LocationPermission.always;
       });
-    }
+    });
   }
 
   @override

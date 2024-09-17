@@ -177,7 +177,8 @@ class _MyMapState extends State<MyMap> {
   }
 
   Future<LatLng> _getCurrentLocation() async {
-    await Permission.locationWhenInUse.request(); // double check
+    // await Permission.locationWhenInUse.request(); // double check
+    await Geolocator.requestPermission();
 
     final position = await Geolocator.getCurrentPosition();
     return LatLng(position.latitude, position.longitude);
